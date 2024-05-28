@@ -7,6 +7,7 @@ import pyautogui
 pyautogui.FAILSAFE = False
 import numpy as np
 import cv2
+import msvcrt
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components._GlobalOpenValidateJoin import open_validate_join
@@ -197,35 +198,43 @@ def function_join_mananamimosa():
         if(resp3==False):
             return print("No hemos conseguido detectar el menú principal del evento ni el torneo en progreso, inicia de nuevo el proceso.")
         else:
-            
-            current_food_list = find_number_food(resp1.get("reader"))
-            current_food = int(current_food_list[0])  # Convierte el primer elemento de la lista a entero
+            while True:
+                if msvcrt.kbhit():
+                    if msvcrt.getch().decode('utf-8').lower() == 'q':
+                        print("Interrupción por usuario. Terminando...")
+                        break
 
-            max_food = get_value_from_json("q6w5f4weg54er584")
+                current_food_list = find_number_food(resp1.get("reader"))
+                current_food = int(current_food_list[0])  # Convierte el primer elemento de la lista a entero
 
-            # Asegúrate de que max_food sea un entero
-            if isinstance(max_food, list) and len(max_food) == 1:
-                max_food = int(max_food[0])
-            elif isinstance(max_food, str):
-                max_food = int(max_food)
+                max_food = get_value_from_json("q6w5f4weg54er584")
 
-            average = max_food * 0.5
-            print("Comida actual: ",current_food,"| Capacidad máxima: ", max_food)
-            if(current_food > average):
-                print("Tu comida actual SÍ supera el 50 porcierto de capacidad, USANDO COMIDA para el torneo.")
-                respA = use_food_option()
-                time.sleep(2)
-            else:
-                print("Tu comida actual NO supera el 50 porcierto de capacidad, USANDO TICKETS para el torneo.")
-                respB = use_tickets_option()
-                time.sleep(2)
-            if(respA == True or respB == True):
-                isParticipantPressed = participar_button()
-                if(isParticipantPressed == True):
-                    isFightDone = confirm_and_fight(resp1.get("reader"))
+                # Asegúrate de que max_food sea un entero
+                if isinstance(max_food, list) and len(max_food) == 1:
+                    max_food = int(max_food[0])
+                elif isinstance(max_food, str):
+                    max_food = int(max_food)
+
+                average = max_food * 0.5
+                print("Comida actual: ", current_food, "| Capacidad máxima: ", max_food)
+                if current_food > average:
+                    print("Tu comida actual SÍ supera el 50 por ciento de capacidad, USANDO COMIDA para el torneo.")
+                    respA = use_food_option()
+                    time.sleep(2)
                 else:
-                    print("No hemos podido encontrar el botón de participar.")
-            else:
-                return print("No se ha encontrado el botón para ingresar al evento.")
+                    print("Tu comida actual NO supera el 50 por ciento de capacidad, USANDO TICKETS para el torneo.")
+                    respB = use_tickets_option()
+                    time.sleep(2)
+
+                if respA == True or respB == True:
+                    isParticipantPressed = participar_button()
+                    if isParticipantPressed == True:
+                        isFightDone = confirm_and_fight(resp1.get("reader"))
+                        print("Esperando 5 segundos...")
+                        time.sleep(5)
+                    else:
+                        print("No hemos podido encontrar el botón de participar.")
+                else:
+                    print("No se ha encontrado el botón para ingresar al evento.")
     else:
         return print("No se ha conseguido abrir el evento.")

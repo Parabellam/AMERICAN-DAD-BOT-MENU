@@ -1,9 +1,11 @@
+import json
 import cv2
 import numpy as np
 import time
 import os
 import pyautogui
 pyautogui.FAILSAFE = False
+import copy
 
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
 MANANAMIMOSAEVENTFIGHT_PATH = "Images/MananaMimosaEvent/Fight"
@@ -73,6 +75,7 @@ PlayerUnderMe_imgs = {
 DisablePlayer_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "DisablePlayer_1.png"),
     "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "DisablePlayer_2.png"),
+    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "DisablePlayer_3.png"),
 }
 
 initial_state = [{
@@ -153,12 +156,16 @@ initial_state = [{
 },]
 
 
-info_players = []
+info_players = copy.deepcopy(initial_state)
 
 
 def reset_info_players():
     global info_players
-    info_players = initial_state.copy()
+    info_players = copy.deepcopy(initial_state)
+    mapped_data_str = "\n".join(
+        [json.dumps(player, indent=2) for player in info_players])
+    time.sleep(1)
+    return True
 
 
 # Find position range
@@ -202,8 +209,7 @@ def open_info_players():
                 found = True
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
-                time.sleep(1)
-                print("Se ha abierdo la información de los jugadores")
+                time.sleep(5)
                 return found
     return found
 
@@ -283,7 +289,7 @@ def find_power(reader):
 def find_state():
     found = False
     count = 0
-    while not found and count < 3:
+    while not found and count < 5:
         for _, image_path in PlayerUnderMe_imgs.items():
             location = pyautogui.locateOnScreen(image_path, region=(
                 top_left_x_state, top_left_y_state, bottom_right_x_state - top_left_x_state, bottom_right_y_state - top_left_y_state), confidence=0.95)
@@ -292,7 +298,7 @@ def find_state():
                 found = True
                 return "bot"
     count = 0
-    while not found and count < 3:
+    while not found and count < 5:
         for _, image_path in PlayerOverMe_imgs.items():
             location = pyautogui.locateOnScreen(image_path, region=(
                 top_left_x_state, top_left_y_state, bottom_right_x_state - top_left_x_state, bottom_right_y_state - top_left_y_state), confidence=0.95)
@@ -301,19 +307,21 @@ def find_state():
                 found = True
                 return "top"
     count = 0
-    while not found and count < 3:
+    while not found and count < 5:
         for _, image_path in DisablePlayer_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, region=(
-                top_left_x_state, top_left_y_state, bottom_right_x_state - top_left_x_state, bottom_right_y_state - top_left_y_state), confidence=0.95)
+            location = pyautogui.locateOnScreen(image_path, confidence=0.9)
             count += 1
             if location:
                 found = True
                 return "disableForAttack"
     print("No se ha conseguido encontrar el estado")
-    return False
+    return "No"
 
 
 def mapear_info_player(reader):
+    position = 0
+    power = 99999999
+    state = "No"
     position = find_position(reader)
     power = find_power(reader)
     state = find_state()
@@ -322,7 +330,6 @@ def mapear_info_player(reader):
 
 def skip_player():
     pyautogui.click(778, 611)
-    return True
 
 
 def loading():
@@ -349,12 +356,12 @@ def find_leave_fight_button():
         for _, image_path in LeaveFightButton_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             count += 1
-            time.sleep(1)
+            time.sleep(2)
             if location:
                 found = True
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
-                time.sleep(1)
+                time.sleep(2)
                 return found
     return found
 
@@ -375,6 +382,7 @@ def start_round():
                     print(
                         "No se ha encontrado el texto Seleccionar al siguiente oponente.")
                     found = False
+    time.sleep(2)
     return found
 
 
@@ -391,7 +399,7 @@ def wait_next_round():
                 count += 1
 
 
-def attack():
+def attack(round):
     pyautogui.click(1012, 610)
     time.sleep(1)
     isLoad = loading()
@@ -399,6 +407,7 @@ def attack():
         time.sleep(5)
         isPressedLeaveFight = find_leave_fight_button()
         if (isPressedLeaveFight):
+            print("La pelea del round ", round, " ha terminado.")
             wait_next_round()
         else:
             print("No se ha encontrado el botón de salir de pelea.")
@@ -423,18 +432,18 @@ def round_1(reader):
 
     # Comparar la posición actual con la posición del jugador con menos poder
     while found == False:
-        time.sleep(0.5)
+        time.sleep(1)
         current_position = find_position(reader)
         if current_position != min_power_position:
             skip_player()
             found = False
         else:
             found = True
-            print(f"Jugador en posición correcta: {current_position}")
+            print(
+                f"Atacando jugador en posición: {current_position} | y poder: {min_power}")
     if (found):
-        isDone = attack()
+        isDone = attack(1)
     if (isDone == True):
-        print("La pelea ha terminado.")
         return True
     else:
         print("No se encontró el botón de ataque")
@@ -452,25 +461,23 @@ def round_2(reader):
 
     # Comparar la posición actual con la posición del jugador con menos poder
     while found == False:
-        time.sleep(0.5)
+        time.sleep(1)
         # Encontrar la posición actual
         current_position = find_position(reader)
         if current_position != min_power_position:
-            print(
-                f"Saltando jugador en posición {current_position}, buscando jugador en posición {min_power_position}")
             skip_player()
         else:
-            print(f"Jugador en posición correcta: {current_position}")
+            print(
+                f"Atacando jugador en posición: {current_position} | y poder: {min_power}")
             found = True
-    isDone = attack()
+    isDone = attack(2)
     if (isDone == True):
-        print("La pelea ha terminado.")
         return True
     else:
         print("No se encontró el botón de ataque")
 
 
-def round_3(reader):
+def round_3(reader, round):
     found = False
     min_power_top = float('inf')
     min_power_position_top = None
@@ -490,48 +497,50 @@ def round_3(reader):
     count = 0
     # Buscar jugador de ataque por encima de mí
     if (min_power_position_top != None):
-        while found == False and count < 15:
-            time.sleep(0.5)
+        print(
+            f"Buscando posición: {min_power_position_top}")
+        while found == False:
+            time.sleep(1)
             current_position = find_position(reader)
             if current_position != min_power_position_top:
                 count += 1
                 skip_player()
             else:
-                print(f"Jugador en posición correcta: {current_position}")
+                print(
+                    f"Atacando jugador en posición: {current_position} | y poder: {min_power_top}")
                 found = True
     else:
         # Buscar jugador de ataque por debajo de mí
-        count = 0
-        while found == False and count < 15:
-            time.sleep(0.5)
+        print(
+            f"Buscando posición: {min_power_position_bot}")
+        while found == False:
+            time.sleep(1)
             current_position = find_position(reader)
             if current_position != min_power_position_bot:
                 count += 1
                 skip_player()
             else:
-                print(f"Jugador en posición correcta: {current_position}")
+                print(
+                    f"Atacando jugador en posición: {current_position} | y poder: {min_power_bot}")
                 found = True
-    isDone = attack()
+    isDone = attack(round)
     if (isDone == True):
-        print("La pelea ha terminado.")
         return True
     else:
         print("No se encontró el botón de ataque")
 
 
 def round_4(reader):
-    resp = round_3(reader)
+    resp = round_3(reader, 4)
     if (resp == True):
-        print("Round 4 finalizado.")
         return resp
     else:
         return False
 
 
 def round_5(reader):
-    resp = round_3(reader)
+    resp = round_3(reader, 5)
     if (resp == True):
-        print("Round 5 finalizado.")
         return resp
     else:
         return False
@@ -550,26 +559,33 @@ def leave_tournament():
                 return found
 
 
-def mapOwnPosition():
-    for player in info_players:
-        if player["reward"] == "bot" and player["power"] == 0:
-            player["power"] = 99999999
-
-
 def mapeo(reader):
-    for _ in info_players:
-        time.sleep(0.7)
+    while True:
+        # Verifica si todos los elementos menos uno están mapeados
+        unmapped_count = sum(
+            1 for player in info_players if not player["isMaped"])
+        if unmapped_count == 1:
+            break
+
+        time.sleep(1)
         position, power, state = mapear_info_player(reader)
         if position <= 15:
             info_players[position - 1]["power"] = power
             info_players[position - 1]["reward"] = state
             info_players[position - 1]["isMaped"] = True
-        isSkiped = skip_player()
-        if not isSkiped:
-            print("No se pudo saltar al siguiente jugador.")
+        skip_player()
+
+    # Asigna los valores específicos al primer item no mapeado
+    for player in info_players:
+        if not player["isMaped"]:
+            player["power"] = 99999999
+            player["reward"] = "No"
+            # Deja isMaped como False
             break
-    mapOwnPosition()
-    print("Datos mapeados: ", info_players)
+
+    mapped_data_str = "\n".join(
+        [json.dumps(player, indent=2) for player in info_players])
+    print("Datos mapeados: ", mapped_data_str)
 
 
 def start_tournament_flow(reader):
@@ -578,60 +594,68 @@ def start_tournament_flow(reader):
     if isOpen == True:
         mapeo(reader)
         respR1 = round_1(reader)
-        if (respR1 == True):
-            reset_info_players()
-            isStartRound = start_round()
-            if (isStartRound == True):
-                isStartRound = False
-                isOpen = open_info_players()
-                if (isOpen == True):
-                    mapeo(reader)
-                    respR2 = round_2(reader)
-                    if (respR2 == True):
-                        reset_info_players()
-                        isStartRound = start_round()
-                        if (isStartRound == True):
-                            isStartRound = False
-                            isOpen = open_info_players()
-                            if (isOpen == True):
-                                mapeo(reader)
-                                respR3 = round_3(reader)
-                                if (respR3 == True):
-                                    reset_info_players()
-                                    isStartRound = start_round()
-                                    if (isStartRound == True):
-                                        isStartRound = False
-                                        isOpen = open_info_players()
-                                        if (isOpen == True):
-                                            mapeo(reader)
-                                            respR4 = round_4(reader)
-                                            if (respR4 == True):
-                                                reset_info_players()
+        if (respR1 == True or print("No hay respR1")):
+            isReset = reset_info_players()
+            if (isReset == True or print("No hay isReset")):
+                isStartRound = start_round()
+                if (isStartRound == True or print("No hay isStartRound")):
+                    isStartRound = False
+                    isOpen = open_info_players()
+                    if (isOpen == True or print("No hay isOpen")):
+                        mapeo(reader)
+                        respR2 = round_2(reader)
+                        if (respR2 == True):
+                            isReset = reset_info_players()
+                            if (isReset == True or print("No hay isReset")):
+                                isStartRound = start_round()
+                                if (isStartRound == True or print("No hay isStartRound")):
+                                    isStartRound = False
+                                    isOpen = open_info_players()
+                                    if (isOpen == True or print("No hay isOpen")):
+                                        mapeo(reader)
+                                        respR3 = round_3(reader, 3)
+                                        if (respR3 == True):
+                                            isReset = reset_info_players()
+                                            if (isReset == True or print("No hay isReset")):
                                                 isStartRound = start_round()
-                                                if (isStartRound == True):
+                                                if (isStartRound == True or print("No hay isStartRound")):
                                                     isStartRound = False
                                                     isOpen = open_info_players()
-                                                    if (isOpen == True):
+                                                    if (isOpen == True or print("No hay isOpen")):
                                                         mapeo(reader)
-                                                        respR5 = round_5(
+                                                        respR4 = round_4(
                                                             reader)
-                                                        if (respR5 == True):
-                                                            reset_info_players()
-                                                            isLeaving = leave_tournament()
-                                                            if (isLeaving == True):
-                                                                print(
-                                                                    "Torneo finalizado. Se han recibido las recompensas.")
-                                                                return True
+                                                        if (respR4 == True):
+                                                            isReset = reset_info_players()
+                                                            if (isReset == True or print("No hay isReset")):
+                                                                isStartRound = start_round()
+                                                                if (isStartRound == True or print("No hay isStartRound")):
+                                                                    isStartRound = False
+                                                                    isOpen = open_info_players()
+                                                                    if (isOpen == True or print("No hay isOpen")):
+                                                                        mapeo(
+                                                                            reader)
+                                                                        respR5 = round_5(
+                                                                            reader)
+                                                                        if (respR5 == True):
+                                                                            isReset = reset_info_players()
+                                                                            if (isReset == True or print("No hay isReset")):
+                                                                                isLeaving = leave_tournament()
+                                                                                if (isLeaving == True):
+                                                                                    print(
+                                                                                        "Torneo finalizado. Se han recibido las recompensas.")
+                                                                                    return True
+                                                                        else:
+                                                                            print(
+                                                                                "Error al terminar el round 5.")
                                                         else:
                                                             print(
-                                                                "Error al terminar el round 5.")
-                                            else:
-                                                print(
-                                                    "Error al terminar el round 4.")
-                                else:
-                                    print("Error al terminar el round 3.")
-                    else:
-                        print("Error al terminar el round 2.")
+                                                                "Error al terminar el round 4.")
+                                        else:
+                                            print(
+                                                "Error al terminar el round 3.")
+                        else:
+                            print("Error al terminar el round 2.")
         else:
             print("Error al terminar el round 1.")
     else:
