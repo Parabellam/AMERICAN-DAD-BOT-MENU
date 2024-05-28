@@ -1,0 +1,1 @@
+print("Resteo: Cerrar aplicación y sleep 5 minutos. Se activará según la cantidad de procesos que haga el evento")
