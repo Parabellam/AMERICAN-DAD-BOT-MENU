@@ -1,3 +1,4 @@
+import copy
 import json
 import cv2
 import numpy as np
@@ -5,7 +6,6 @@ import time
 import os
 import pyautogui
 pyautogui.FAILSAFE = False
-import copy
 
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
 MANANAMIMOSAEVENTFIGHT_PATH = "Images/MananaMimosaEvent/Fight"
@@ -14,6 +14,12 @@ max_attempts = 10
 LoadingTournament_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "LoadingTournament_1.png"),
     "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "LoadingTournament_2.png"),
+}
+
+isInfoPlayersOpen_imgs = {
+    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_1.png"),
+    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_2.png"),
+    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_3.png"),
 }
 
 ArrowRight_imgs = {
@@ -33,6 +39,7 @@ Fighting_imgs = {
 FinishEvent_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "FinishEvent_1.png"),
     "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "FinishEvent_2.png"),
+    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "FinishEvent_3.png"),
 }
 
 JoiningFight_imgs = {
@@ -162,8 +169,6 @@ info_players = copy.deepcopy(initial_state)
 def reset_info_players():
     global info_players
     info_players = copy.deepcopy(initial_state)
-    mapped_data_str = "\n".join(
-        [json.dumps(player, indent=2) for player in info_players])
     time.sleep(1)
     return True
 
@@ -199,6 +204,7 @@ def wait_match():
 
 
 def open_info_players():
+    time.sleep(1)
     found = False
     count = 0
     while not found and count < max_attempts:
@@ -275,6 +281,8 @@ def find_position(reader):
               top_left_x_position, bottom_right_y_position - top_left_y_position)
     position = capture_and_read_text(
         region, reader, allowlist='Pposición: 0123456789', pos=1)
+    if position == None:
+        return 15
     return position
 
 
@@ -283,6 +291,8 @@ def find_power(reader):
               top_left_x_power, bottom_right_y_power - top_left_y_power)
     power = capture_and_read_text(
         region, reader, allowlist='0123456789', pos=0)
+    if power == None:
+        return 50000000
     return power
 
 
@@ -588,10 +598,27 @@ def mapeo(reader):
     print("Datos mapeados: ", mapped_data_str)
 
 
+def validate_open_info_players():
+    found = False
+    count = 0
+    while not found and count < max_attempts:
+        for _, image_path in isInfoPlayersOpen_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            count += 1
+            found = True
+            if location:
+                return found
+    return found
+
+
 def start_tournament_flow(reader):
     isStartRound = False
-    isOpen = open_info_players()
-    if isOpen == True:
+    while True:
+        isOpen = open_info_players()
+        validate = validate_open_info_players()
+        if isOpen and validate:
+            break
+    if isOpen == True and validate:
         mapeo(reader)
         respR1 = round_1(reader)
         if (respR1 == True or print("No hay respR1")):
@@ -671,6 +698,7 @@ def confirm_and_fight(reader):
     }
     found = False
     count = 0
+    time.sleep(1)
     while not found and count < max_attempts:
         for _, image_path in ConfirmJoinTournament_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
@@ -679,6 +707,9 @@ def confirm_and_fight(reader):
                 found = True
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
+            else:
+                time.sleep(1)
+                pyautogui.click(997, 647)
     if (found == True):
         print("Esperando matchs")
         isStart = wait_match()

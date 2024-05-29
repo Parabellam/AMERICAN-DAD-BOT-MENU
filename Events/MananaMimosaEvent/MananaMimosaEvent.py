@@ -14,8 +14,11 @@ from Components._GlobalOpenValidateJoin import open_validate_join
 from ManageJSON.ManageJSONFile import get_value_from_json
 
 from Events.MananaMimosaEvent.ConfirmAndFight import confirm_and_fight
+from Events.RickySpanishIslandEvent.RickySpanishIslandEvent import chatEvent
 
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
+HAPPINESS_PATH = "Images/Happiness"
+GLOBAL_PATH = "Images/Global"
 
 MananaMimosa_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_1.png"),
@@ -25,16 +28,13 @@ MananaMimosa_imgs = {
     "img5": os.path.join(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_5.png"),
 }
 
-Cake_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "cake_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "cake_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENT_PATH, "cake_3.png"),
-}
-
 EventNoRunning_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_1.png"),
     "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_2.png"),
+    "img3": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_3.png"),
+    "img4": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_4.png"),
+    "img5": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_5.png"),
+    "img6": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_6.png"),
 }
 
 useFood_imgs = {
@@ -57,23 +57,37 @@ participar_imgs = {
     "img3": os.path.join(MANANAMIMOSAEVENT_PATH, "participar_3.png"),
 }
 
+loading_game_imgs = {
+    "img1": os.path.join(GLOBAL_PATH, "loading_game_1.png"),
+    "img2": os.path.join(GLOBAL_PATH, "loading_game_2.png"),
+    "img3": os.path.join(GLOBAL_PATH, "loading_game_3.png"),
+}
+
+isOut_imgs = {
+    "img1": os.path.join(GLOBAL_PATH, "isOut_1.png"),
+    "img2": os.path.join(GLOBAL_PATH, "isOut_2.png"),
+}
+
+happiness_imgs = {
+    "img1": os.path.join(HAPPINESS_PATH, "1.png"),
+    "img2": os.path.join(HAPPINESS_PATH, "2.png"),
+    "img3": os.path.join(HAPPINESS_PATH, "3.png"),
+    "img4": os.path.join(HAPPINESS_PATH, "4.png"),
+    "img5": os.path.join(HAPPINESS_PATH, "5.png"),
+    "img6": os.path.join(HAPPINESS_PATH, "6.png"),
+    "img7": os.path.join(HAPPINESS_PATH, "7.png"),
+    "img8": os.path.join(HAPPINESS_PATH, "8.png"),
+}
+
 max_attempts = 10
 
 def open_event():
-    found = False
-    count = 0
-    while not found and count < max_attempts:
-        for _, image_path in MananaMimosa_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
-            count += 1
-            if location:
-                found = True
-                center_x, center_y = pyautogui.center(location)
-                pyautogui.click(center_x, center_y)
-                return True
-    return False
+    time.sleep(1)
+    pyautogui.click(1096, 180)
+    return True
 
 def isEventRuning():
+    time.sleep(2)
     found = False
     count = 0
     while not found and count < max_attempts:
@@ -82,6 +96,7 @@ def isEventRuning():
             count += 1
             if locationNoRunning:
                 found = True
+                print("No running")
                 return "No running"
         # if(found==False):
         #     for _, image_path in EventRunning_imgs.items():
@@ -90,20 +105,7 @@ def isEventRuning():
         #         if locationRunning:
         #             found = True
         #             return "Running"
-    return False
-
-
-def findCake():
-    found = False
-    count = 0
-    while not found and count < max_attempts:
-        for _, image_path in Cake_imgs.items():
-            locationCake = pyautogui.locateOnScreen(image_path, confidence=0.9)
-            print(count)
-            count += 1
-            if locationCake:
-                found = True
-                return locationCake
+    print("False")
     return False
 
 
@@ -140,32 +142,12 @@ def find_number_food(reader):
     return numbers
 
 def use_tickets_option():
-    found = False
-    count = 0
-    while not found and count < max_attempts:
-        for _, image_path in useTickets_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
-            count += 1
-            if location:
-                found = True
-                center_x, center_y = pyautogui.center(location)
-                pyautogui.click(center_x, center_y)
-                return found
-    return found
+    pyautogui.click(484, 252)
+    return True
 
 def use_food_option():
-    found = False
-    count = 0
-    while not found and count < max_attempts:
-        for _, image_path in useFood_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
-            count += 1
-            if location:
-                found = True
-                center_x, center_y = pyautogui.center(location)
-                pyautogui.click(center_x, center_y)
-                return found
-    return found
+    pyautogui.click(259, 254)
+    return True
 
 
 def participar_button():
@@ -184,10 +166,84 @@ def participar_button():
     return found
 
 
+def validate_open_event():
+    found = False
+    count = 0
+    while not found and count < max_attempts:
+        for _, image_path in EventNoRunning_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            count += 1
+            found = True
+            if location:
+                return found
+    return found
+
+
+def isLoadingGame():
+    time.sleep(10)
+    count = 0
+    failCount = 0
+    while count < 25 and failCount < 200:
+        for _, image_path in loading_game_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.9)
+            if location:
+                time.sleep(10)
+                failCount += 1
+            else:
+                count += 1
+    if (count > 23):
+        return True
+    if (failCount > 198):
+        return False
+    
+    
+def get_happiness():
+    count = 0
+    while count < 20:
+        for _, image_path in happiness_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            count += 1
+            if location:
+                center_x, center_y = pyautogui.center(location)
+                pyautogui.click(center_x, center_y)
+
+
+def another_tasks():
+    respChatEvent = chatEvent()
+    if(respChatEvent):
+        get_happiness()
+    else:
+        print("No se logró abrir el chat.")
+
+def isOut():
+    count = 0
+    while count < 20:
+        for _, image_path in isOut_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            count += 1
+            if location:
+                center_x, center_y = pyautogui.center(location)
+                pyautogui.click(center_x, center_y)
+                return True
+    return False
+
+
+def validate_screen():
+    isOutResp = isOut()
+    if(isOutResp == True):
+        pyautogui.click(909, 94) # Entra al juego
+    else:
+        print("NO hemos conseguido entrar al juego o ya estamos dentro del juego")
+
+
 def function_join_mananamimosa():
     resp1=open_validate_join()
     if(resp1.get("state")==True):
-        resp2 = open_event()
+        while True:
+            resp2 = open_event()
+            validate = validate_open_event()
+            if validate==True:
+                break
     else:
         return print(resp1)
     if(resp2):
@@ -198,6 +254,7 @@ def function_join_mananamimosa():
         if(resp3==False):
             return print("No hemos conseguido detectar el menú principal del evento ni el torneo en progreso, inicia de nuevo el proceso.")
         else:
+            restart = 1
             while True:
                 if msvcrt.kbhit():
                     if msvcrt.getch().decode('utf-8').lower() == 'q':
@@ -205,7 +262,14 @@ def function_join_mananamimosa():
                         break
 
                 current_food_list = find_number_food(resp1.get("reader"))
-                current_food = int(current_food_list[0])  # Convierte el primer elemento de la lista a entero
+                if current_food_list:
+                    current_food = int(current_food_list[0])
+                else:
+                    current_food_list = find_number_food(resp1.get("reader"))
+                    if(current_food_list):
+                        current_food = int(current_food_list[0])
+                    else:
+                        current_food = 0
 
                 max_food = get_value_from_json("q6w5f4weg54er584")
 
@@ -217,6 +281,8 @@ def function_join_mananamimosa():
 
                 average = max_food * 0.5
                 print("Comida actual: ", current_food, "| Capacidad máxima: ", max_food)
+                respA = False
+                respB = False
                 if current_food > average:
                     print("Tu comida actual SÍ supera el 50 por ciento de capacidad, USANDO COMIDA para el torneo.")
                     respA = use_food_option()
@@ -231,7 +297,25 @@ def function_join_mananamimosa():
                     if isParticipantPressed == True:
                         isFightDone = confirm_and_fight(resp1.get("reader"))
                         print("Esperando 5 segundos...")
-                        time.sleep(5)
+                        time.sleep(7)
+                        restart += 1
+                        if restart % 10 == 0 or restart % 2 == 0 or restart % 3 == 0:
+                            pyautogui.click(1348, 704)
+                            time.sleep(56)
+                            pyautogui.click(909, 94) # Borrar todas las aplicaciones abiertas
+                            time.sleep(595)
+                            pyautogui.click(909, 94) # Entra al juego
+                            pyautogui.click(909, 94) # Entra al juego
+                            time.sleep(5)
+                            pyautogui.click(909, 94) # Entra al juego
+                            pyautogui.click(909, 94) # Entra al juego
+                            loadDone = isLoadingGame()
+                            if(loadDone==True):
+                                print("Juego cargado")
+                                # another_tasks()
+                            else:
+                                # validate_screen()
+                                print("Error al cargar el juego")
                     else:
                         print("No hemos podido encontrar el botón de participar.")
                 else:
