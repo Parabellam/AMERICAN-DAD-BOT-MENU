@@ -40,14 +40,14 @@ def add_food_capacity_input(frame):
     return entry
 
 def action_buttons(frame):
-    button1 = tk.Button(frame, text="Mañana Mimosa", command=function_join_mananamimosa, width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
+    button1 = tk.Button(frame, text="Mañana Mimosa", command=lambda: function_join_mananamimosa(root), width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
     button1.grid(row=2, column=0, padx=10, pady=10)
     ToolTip(button1, "Para este evento se consumirá la comida si esta es mayor al 50% de tu capacidad. Por el contrario, usará los tickets hasta acabarlos y finalizará. Próximamente se podrá configurar este 50% mencionado.", width=300)
     
-    button2 = tk.Button(frame, text="Guerra Familialandia", command=function_join_mananamimosa, width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
+    button2 = tk.Button(frame, text="Guerra Familialandia", command=lambda: function_join_mananamimosa(root), width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
     button2.grid(row=2, column=1, padx=10, pady=10)
     
-    button3 = tk.Button(frame, text="General", command=function_join_mananamimosa, width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
+    button3 = tk.Button(frame, text="General", command=lambda: function_join_mananamimosa(root), width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
     button3.grid(row=3, column=0, padx=10, pady=10)
     ToolTip(button3, "Hacer todas las actividades diarias.", width=300)
     

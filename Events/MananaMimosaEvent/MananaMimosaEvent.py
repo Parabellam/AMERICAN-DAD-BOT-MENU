@@ -11,6 +11,7 @@ import msvcrt
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components._GlobalOpenValidateJoin import open_validate_join
+from Components.FindActividadSospechosa import isActividadSospechosa
 from ManageJSON.ManageJSONFile import get_value_from_json
 
 from Events.MananaMimosaEvent.ConfirmAndFight import confirm_and_fight
@@ -236,7 +237,7 @@ def validate_screen():
         print("NO hemos conseguido entrar al juego o ya estamos dentro del juego")
 
 
-def function_join_mananamimosa():
+def function_join_mananamimosa(root):
     resp1=open_validate_join()
     if(resp1.get("state")==True):
         while True:
@@ -256,6 +257,10 @@ def function_join_mananamimosa():
         else:
             restart = 1
             while True:
+                respActividadSospechosa = isActividadSospechosa()
+                if(respActividadSospechosa == True):
+                    root.destroy()
+                    return respActividadSospechosa
                 if msvcrt.kbhit():
                     if msvcrt.getch().decode('utf-8').lower() == 'q':
                         print("Interrupción por usuario. Terminando...")
@@ -297,21 +302,38 @@ def function_join_mananamimosa():
                     if isParticipantPressed == True:
                         isFightDone = confirm_and_fight(resp1.get("reader"))
                         print("Esperando 5 segundos...")
-                        time.sleep(7)
+                        time.sleep(5)
                         restart += 1
-                        if restart % 10 == 0 or restart % 2 == 0 or restart % 3 == 0:
+                        if restart % 8 == 0:
                             pyautogui.click(1348, 704)
-                            time.sleep(56)
+                            time.sleep(10)
                             pyautogui.click(909, 94) # Borrar todas las aplicaciones abiertas
-                            time.sleep(595)
-                            pyautogui.click(909, 94) # Entra al juego
-                            pyautogui.click(909, 94) # Entra al juego
-                            time.sleep(5)
-                            pyautogui.click(909, 94) # Entra al juego
-                            pyautogui.click(909, 94) # Entra al juego
+                            print("Esperando 4 minutos...")
+                            time.sleep(120)
+                            time.sleep(120)
+                            print("Esperando 4 minutos... (8)")
+                            time.sleep(120)
+                            time.sleep(120)
+                            print("Esperando 4 minutos... (12)")
+                            time.sleep(120)
+                            time.sleep(120)
+                            print("Esperando 4 minutos... (16)")
+                            time.sleep(120)
+                            time.sleep(120)
+                            print("Esperando 4 minutos... (20)")
+                            time.sleep(120)
+                            time.sleep(120)
+                            print("Han terminao los 20 minutos de espera, iniciando juego nuevamente...")
+                            pyautogui.click(950, 227) # Entra al juego
+                            time.sleep(3)
+                            pyautogui.click(950, 227) # Entra al juego
                             loadDone = isLoadingGame()
                             if(loadDone==True):
                                 print("Juego cargado")
+                                pyautogui.click(137, 657)
+                                time.sleep(7)
+                                pyautogui.click(1100, 186)
+                                time.sleep(7)
                                 # another_tasks()
                             else:
                                 # validate_screen()
