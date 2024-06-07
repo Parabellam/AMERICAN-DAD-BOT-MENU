@@ -5,6 +5,7 @@ import numpy as np
 import time
 import os
 import pyautogui
+import random
 pyautogui.FAILSAFE = False
 
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
@@ -191,12 +192,11 @@ def wait_match():
         for _, image_path in LoadingTournament_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             if location:
-                time.sleep(5)
+                time.sleep(random.uniform(4, 5))
                 failCount += 1
             else:
                 count += 1
     if (count > 8):
-        print("Ha comenzado el torneo.")
         return True
     if (failCount > 38):
         print("El torneo no ha logrado comenzar con éxito.")
@@ -215,7 +215,7 @@ def open_info_players():
                 found = True
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
-                time.sleep(5)
+                time.sleep(random.uniform(4, 5))
                 return found
     return found
 
@@ -403,7 +403,7 @@ def wait_next_round():
         for _, image_path in WaitTournament_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             if location:
-                time.sleep(8)
+                time.sleep(random.uniform(7, 9))
                 failCount += 1
             else:
                 count += 1
@@ -414,10 +414,9 @@ def attack(round):
     time.sleep(1)
     isLoad = loading()
     if (isLoad == True):
-        time.sleep(5)
+        time.sleep(random.uniform(4, 5))
         isPressedLeaveFight = find_leave_fight_button()
         if (isPressedLeaveFight):
-            print("La pelea del round ", round, " ha terminado.")
             wait_next_round()
         else:
             print("No se ha encontrado el botón de salir de pelea.")
@@ -437,9 +436,6 @@ def round_1(reader):
             min_power = player["power"]
             min_power_position = player["position"]
 
-    print("Jugador con menos poder: POSITION: ",
-          min_power_position, " POWER: ", min_power)
-
     # Comparar la posición actual con la posición del jugador con menos poder
     while found == False:
         time.sleep(1)
@@ -449,8 +445,6 @@ def round_1(reader):
             found = False
         else:
             found = True
-            print(
-                f"Atacando jugador en posición: {current_position} | y poder: {min_power}")
     if (found):
         isDone = attack(1)
     if (isDone == True):
@@ -477,8 +471,6 @@ def round_2(reader):
         if current_position != min_power_position:
             skip_player()
         else:
-            print(
-                f"Atacando jugador en posición: {current_position} | y poder: {min_power}")
             found = True
     isDone = attack(2)
     if (isDone == True):
@@ -507,8 +499,6 @@ def round_3(reader, round):
     count = 0
     # Buscar jugador de ataque por encima de mí
     if (min_power_position_top != None):
-        print(
-            f"Buscando posición: {min_power_position_top}")
         while found == False:
             time.sleep(1)
             current_position = find_position(reader)
@@ -516,13 +506,9 @@ def round_3(reader, round):
                 count += 1
                 skip_player()
             else:
-                print(
-                    f"Atacando jugador en posición: {current_position} | y poder: {min_power_top}")
                 found = True
     else:
         # Buscar jugador de ataque por debajo de mí
-        print(
-            f"Buscando posición: {min_power_position_bot}")
         while found == False:
             time.sleep(1)
             current_position = find_position(reader)
@@ -530,8 +516,6 @@ def round_3(reader, round):
                 count += 1
                 skip_player()
             else:
-                print(
-                    f"Atacando jugador en posición: {current_position} | y poder: {min_power_bot}")
                 found = True
     isDone = attack(round)
     if (isDone == True):
@@ -593,9 +577,9 @@ def mapeo(reader):
             # Deja isMaped como False
             break
 
-    mapped_data_str = "\n".join(
-        [json.dumps(player, indent=2) for player in info_players])
-    print("Datos mapeados: ", mapped_data_str)
+    # mapped_data_str = "\n".join(
+    #     [json.dumps(player, indent=2) for player in info_players])
+    # print("Datos mapeados: ", mapped_data_str)
 
 
 def validate_open_info_players():
@@ -669,8 +653,6 @@ def start_tournament_flow(reader):
                                                                             if (isReset == True or print("No hay isReset")):
                                                                                 isLeaving = leave_tournament()
                                                                                 if (isLeaving == True):
-                                                                                    print(
-                                                                                        "Torneo finalizado. Se han recibido las recompensas.")
                                                                                     return True
                                                                         else:
                                                                             print(
@@ -711,12 +693,10 @@ def confirm_and_fight(reader):
                 time.sleep(1)
                 pyautogui.click(997, 647)
     if (found == True):
-        print("Esperando matchs")
         isStart = wait_match()
         if (isStart == True):
             tournamentResp = start_tournament_flow(reader)
             if (tournamentResp == True):
-                print("El torneo se ha completado correctamente.")
                 return tournamentResp
             else:
                 print("El torneo NO se ha completado correctamente.")

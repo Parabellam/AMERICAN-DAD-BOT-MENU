@@ -11,14 +11,12 @@ from Components.OpenWindow import open_bluestacks_window
 from Components.JoinMap import open_main_map
 
 def preload_easyocr():
-    print("Cargando easyOCR (Detección de imagen)")
     time.sleep(2)
     global reader
     reader = easyocr.Reader(['en'], gpu=False)
 
 def open_validate_join():
     preload_easyocr()
-    print("Carga terminada")
     resp1 = open_bluestacks_window()
     time.sleep(2)
     if(resp1):

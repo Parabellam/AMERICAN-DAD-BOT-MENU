@@ -8,10 +8,12 @@ pyautogui.FAILSAFE = False
 import numpy as np
 import cv2
 import msvcrt
+import random
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components._GlobalOpenValidateJoin import open_validate_join
 from Components.FindActividadSospechosa import isActividadSospechosa
+from Components.RandomActivities import find_random_activity
 from ManageJSON.ManageJSONFile import get_value_from_json
 
 from Events.MananaMimosaEvent.ConfirmAndFight import confirm_and_fight
@@ -20,6 +22,7 @@ from Events.RickySpanishIslandEvent.RickySpanishIslandEvent import chatEvent
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
 HAPPINESS_PATH = "Images/Happiness"
 GLOBAL_PATH = "Images/Global"
+HOME_PATH = "Images/Home"
 
 MananaMimosa_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_1.png"),
@@ -45,6 +48,11 @@ useFood_imgs = {
     "img4": os.path.join(MANANAMIMOSAEVENT_PATH, "useFood_4.png"),
 }
 
+LeaveEvent_imgs = {
+    "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "LeaveEvent_1.png"),
+    "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "LeaveEvent_2.png"),
+}
+
 useTickets_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "useTickets_1.png"),
     "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "useTickets_2.png"),
@@ -67,6 +75,11 @@ loading_game_imgs = {
 isOut_imgs = {
     "img1": os.path.join(GLOBAL_PATH, "isOut_1.png"),
     "img2": os.path.join(GLOBAL_PATH, "isOut_2.png"),
+}
+
+home_imgs = {
+    "img1": os.path.join(HOME_PATH, "home_1.png"),
+    "img2": os.path.join(HOME_PATH, "home_2.png"),
 }
 
 happiness_imgs = {
@@ -97,7 +110,6 @@ def isEventRuning():
             count += 1
             if locationNoRunning:
                 found = True
-                print("No running")
                 return "No running"
         # if(found==False):
         #     for _, image_path in EventRunning_imgs.items():
@@ -106,7 +118,6 @@ def isEventRuning():
         #         if locationRunning:
         #             found = True
         #             return "Running"
-    print("False")
     return False
 
 
@@ -196,8 +207,8 @@ def isLoadingGame():
         return True
     if (failCount > 198):
         return False
-    
-    
+
+
 def get_happiness():
     count = 0
     while count < 20:
@@ -235,6 +246,32 @@ def validate_screen():
         pyautogui.click(909, 94) # Entra al juego
     else:
         print("NO hemos conseguido entrar al juego o ya estamos dentro del juego")
+
+
+def leaveEventButton():
+    count = 0
+    while count < 20:
+        for _, image_path in LeaveEvent_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            count += 1
+            if location:
+                center_x, center_y = pyautogui.center(location)
+                pyautogui.click(center_x, center_y)
+                return True
+    return False
+
+
+def goHome():
+    count = 0
+    while count < 20:
+        for _, image_path in home_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            count += 1
+            if location:
+                center_x, center_y = pyautogui.center(location)
+                pyautogui.click(center_x, center_y)
+                return True
+    return False
 
 
 def function_join_mananamimosa(root):
@@ -285,15 +322,14 @@ def function_join_mananamimosa(root):
                     max_food = int(max_food)
 
                 average = max_food * 0.5
-                print("Comida actual: ", current_food, "| Capacidad máxima: ", max_food)
                 respA = False
                 respB = False
                 if current_food > average:
-                    print("Tu comida actual SÍ supera el 50 por ciento de capacidad, USANDO COMIDA para el torneo.")
+                    # print("Tu comida actual SÍ supera el 50 por ciento de capacidad, USANDO COMIDA para el torneo.")
                     respA = use_food_option()
                     time.sleep(2)
                 else:
-                    print("Tu comida actual NO supera el 50 por ciento de capacidad, USANDO TICKETS para el torneo.")
+                    # print("Tu comida actual NO supera el 50 por ciento de capacidad, USANDO TICKETS para el torneo.")
                     respB = use_tickets_option()
                     time.sleep(2)
 
@@ -301,43 +337,47 @@ def function_join_mananamimosa(root):
                     isParticipantPressed = participar_button()
                     if isParticipantPressed == True:
                         isFightDone = confirm_and_fight(resp1.get("reader"))
-                        print("Esperando 5 segundos...")
                         time.sleep(5)
                         restart += 1
-                        if restart % 8 == 0:
-                            pyautogui.click(1348, 704)
-                            time.sleep(10)
-                            pyautogui.click(909, 94) # Borrar todas las aplicaciones abiertas
-                            print("Esperando 4 minutos...")
-                            time.sleep(120)
-                            time.sleep(120)
-                            print("Esperando 4 minutos... (8)")
-                            time.sleep(120)
-                            time.sleep(120)
-                            print("Esperando 4 minutos... (12)")
-                            time.sleep(120)
-                            time.sleep(120)
-                            print("Esperando 4 minutos... (16)")
-                            time.sleep(120)
-                            time.sleep(120)
-                            print("Esperando 4 minutos... (20)")
-                            time.sleep(120)
-                            time.sleep(120)
-                            print("Han terminao los 20 minutos de espera, iniciando juego nuevamente...")
-                            pyautogui.click(950, 227) # Entra al juego
-                            time.sleep(3)
-                            pyautogui.click(950, 227) # Entra al juego
-                            loadDone = isLoadingGame()
-                            if(loadDone==True):
-                                print("Juego cargado")
-                                pyautogui.click(137, 657)
-                                time.sleep(7)
-                                pyautogui.click(1100, 186)
-                                time.sleep(7)
-                                # another_tasks()
-                            else:
-                                # validate_screen()
-                                print("Error al cargar el juego")
+                        random_value = random.choice([2, 3, 4])
+                        # if restart % random_value == 0:
+                        #     # isLeaveEvent = leaveEventButton()
+                        #     # if(isLeaveEvent == True):
+                        #     #     isHome = goHome()
+                        #     #     if(isHome):
+                        #     #         find_random_activity()
+                        #     #     else:
+                        #     #         print("No se ha encontrado el botón de casa")
+                        #     # else:
+                        #     #     print("No se ha logrado salir del evento")
+                            
+                            
+                            
+                            
+                        #     pyautogui.click(1348, 704)
+                        #     time.sleep(10)
+                        #     pyautogui.click(909, 94) # Borrar todas las aplicaciones abiertas
+                        #     time.sleep(120)
+                        #     time.sleep(120)
+                        #     time.sleep(120)
+                        #     time.sleep(random.uniform(120, 240))
+                        #     time.sleep(random.uniform(120, 240))
+                        #     time.sleep(120)
+                        #     time.sleep(120)
+                        #     time.sleep(120)
+                        #     pyautogui.click(950, 227) # Entra al juego
+                        #     time.sleep(3)
+                        #     pyautogui.click(950, 227) # Entra al juego
+                        #     loadDone = isLoadingGame()
+                        #     if(loadDone==True):
+                        #         pyautogui.click(137, 657)
+                        #         time.sleep(7)
+                        #         pyautogui.click(1100, 186)
+                        #         time.sleep(7)
+                        #         # another_tasks()
+                        #     else:
+                        #         # validate_screen()
+                        #         print("Error al cargar el juego")
                     else:
                         print("No hemos podido encontrar el botón de participar.")
                 else:
