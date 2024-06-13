@@ -13,80 +13,93 @@ MANANAMIMOSAEVENTFIGHT_PATH = "Images/MananaMimosaEvent/Fight"
 max_attempts = 10
 
 LoadingTournament_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "LoadingTournament_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "LoadingTournament_2.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
+    if file.startswith("LoadingTournament_") and file.endswith(".png")
 }
 
 isInfoPlayersOpen_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_3.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("isInfoPlayersOpen_") and file.endswith(".png")
 }
 
 ArrowRight_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "ArrowRight_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "ArrowRight_2.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("ArrowRight_") and file.endswith(".png")
 }
 
 FightButton_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "FightButton_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "FightButton_2.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("FightButton_") and file.endswith(".png")
 }
 
 Fighting_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "Fighting_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "Fighting_2.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("Fighting_") and file.endswith(".png")
 }
 
 FinishEvent_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "FinishEvent_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "FinishEvent_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "FinishEvent_3.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("FinishEvent_") and file.endswith(".png")
 }
 
 JoiningFight_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "JoiningFight_1.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("JoiningFight_") and file.endswith(".png")
 }
 
 LeaveFightButton_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "LeaveFightButton_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "LeaveFightButton_2.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("LeaveFightButton_") and file.endswith(".png")
 }
 
 LeavingFight_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "LeavingFight_1.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("LeavingFight_") and file.endswith(".png")
 }
 
 SelectOpponent_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "SelectOpponent_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "SelectOpponent_2.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("SelectOpponent_") and file.endswith(".png")
 }
 
 SelectPlayer_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "SelectPlayer_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "SelectPlayer_2.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("SelectPlayer_") and file.endswith(".png")
 }
 
 WaitTournament_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "WaitTournament_1.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("WaitTournament_") and file.endswith(".png")
 }
 
 PlayerOverMe_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerOverMe_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerOverMe_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerOverMe_3.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("PlayerOverMe_") and file.endswith(".png")
 }
 
 PlayerUnderMe_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerUnderMe_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerUnderMe_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerUnderMe_3.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("PlayerUnderMe_") and file.endswith(".png")
 }
 
 DisablePlayer_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "DisablePlayer_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "DisablePlayer_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "DisablePlayer_3.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
+    if file.startswith("DisablePlayer_") and file.endswith(".png")
 }
 
 initial_state = [{

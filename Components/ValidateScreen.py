@@ -6,17 +6,15 @@ MAP_BUTTON_PATH = "Images/MapButton"
 MAP_SCREEN_PATH = "Images/MapScreen"
 
 map_imgs = {
-    "img1": os.path.join(MAP_BUTTON_PATH, "map1.png"),
-    "img2": os.path.join(MAP_BUTTON_PATH, "map2.png"),
-    "img3": os.path.join(MAP_BUTTON_PATH, "map3.png"),
-    "img4": os.path.join(MAP_BUTTON_PATH, "map4.png"),
-    "img5": os.path.join(MAP_BUTTON_PATH, "map5.png"),
+    f"img{index+1}": os.path.join(MAP_BUTTON_PATH, file)
+    for index, file in enumerate(os.listdir(MAP_BUTTON_PATH))
+    if file.startswith("map_btn_") and file.endswith(".png")
 }
 
 map_screen_imgs = {
-    "img1": os.path.join(MAP_SCREEN_PATH, "map_screen_1.png"),
-    "img2": os.path.join(MAP_SCREEN_PATH, "map_screen_2.png"),
-    "img3": os.path.join(MAP_SCREEN_PATH, "map_screen_3.png"),
+    f"img{index+1}": os.path.join(MAP_SCREEN_PATH, file)
+    for index, file in enumerate(os.listdir(MAP_SCREEN_PATH))
+    if file.startswith("map_screen_") and file.endswith(".png")
 }
 
 CONFIDENCE = 0.95

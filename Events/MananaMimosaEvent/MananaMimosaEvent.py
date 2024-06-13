@@ -25,61 +25,57 @@ GLOBAL_PATH = "Images/Global"
 HOME_PATH = "Images/Home"
 
 MananaMimosa_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_3.png"),
-    "img4": os.path.join(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_4.png"),
-    "img5": os.path.join(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_5.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
+    if file.startswith("MananaMimosaEvent_") and file.endswith(".png")
 }
 
 EventNoRunning_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_3.png"),
-    "img4": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_4.png"),
-    "img5": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_5.png"),
-    "img6": os.path.join(MANANAMIMOSAEVENT_PATH, "EventNoRunning_6.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
+    if file.startswith("EventNoRunning_") and file.endswith(".png")
 }
 
 useFood_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "useFood_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "useFood_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENT_PATH, "useFood_3.png"),
-    "img4": os.path.join(MANANAMIMOSAEVENT_PATH, "useFood_4.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
+    if file.startswith("useFood_") and file.endswith(".png")
 }
 
 LeaveEvent_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "LeaveEvent_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "LeaveEvent_2.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
+    if file.startswith("LeaveEvent_") and file.endswith(".png")
 }
 
 useTickets_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "useTickets_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "useTickets_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENT_PATH, "useTickets_3.png"),
-    "img4": os.path.join(MANANAMIMOSAEVENT_PATH, "useTickets_4.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
+    if file.startswith("useTickets_") and file.endswith(".png")
 }
 
 participar_imgs = {
-    "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "participar_1.png"),
-    "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "participar_2.png"),
-    "img3": os.path.join(MANANAMIMOSAEVENT_PATH, "participar_3.png"),
+    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
+    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
+    if file.startswith("participar_") and file.endswith(".png")
 }
 
 loading_game_imgs = {
-    "img1": os.path.join(GLOBAL_PATH, "loading_game_1.png"),
-    "img2": os.path.join(GLOBAL_PATH, "loading_game_2.png"),
-    "img3": os.path.join(GLOBAL_PATH, "loading_game_3.png"),
+    f"img{index+1}": os.path.join(GLOBAL_PATH, file)
+    for index, file in enumerate(os.listdir(GLOBAL_PATH))
+    if file.startswith("loading_game_") and file.endswith(".png")
 }
 
 isOut_imgs = {
-    "img1": os.path.join(GLOBAL_PATH, "isOut_1.png"),
-    "img2": os.path.join(GLOBAL_PATH, "isOut_2.png"),
+    f"img{index+1}": os.path.join(GLOBAL_PATH, file)
+    for index, file in enumerate(os.listdir(GLOBAL_PATH))
+    if file.startswith("isOut_") and file.endswith(".png")
 }
 
 home_imgs = {
-    "img1": os.path.join(HOME_PATH, "home_1.png"),
-    "img2": os.path.join(HOME_PATH, "home_2.png"),
+    f"img{index+1}": os.path.join(HOME_PATH, file)
+    for index, file in enumerate(os.listdir(HOME_PATH))
+    if file.startswith("home_") and file.endswith(".png")
 }
 
 happiness_imgs = {

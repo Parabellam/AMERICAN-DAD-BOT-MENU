@@ -6,7 +6,9 @@ import time
 ACTIVIDAD_SOSPECHOSA_PATH = "Images/Errors"
 
 actividad_sospechosa_imgs = {
-    "img1": os.path.join(ACTIVIDAD_SOSPECHOSA_PATH, "actividad_sospechosa_1.png"),
+    f"img{index+1}": os.path.join(ACTIVIDAD_SOSPECHOSA_PATH, file)
+    for index, file in enumerate(os.listdir(ACTIVIDAD_SOSPECHOSA_PATH))
+    if file.startswith("actividad_sospechosa_") and file.endswith(".png")
 }
 
 

@@ -8,18 +8,21 @@ CHAT_PATH = "Images/Chat"
 RICKYSPANISH_PATH = "Images/RickySpanishIslandEvent"
 
 is_chat_open_imgs = {
-    "img1": os.path.join(CHAT_PATH, "is_chat_open_1.png"),
-    "img2": os.path.join(CHAT_PATH, "is_chat_open_2.png"),
-    "img3": os.path.join(CHAT_PATH, "is_chat_open_3.png"),
+    f"img{index+1}": os.path.join(CHAT_PATH, file)
+    for index, file in enumerate(os.listdir(CHAT_PATH))
+    if file.startswith("is_chat_open_") and file.endswith(".png")
 }
 
 get_button_imgs = {
-    "img1": os.path.join(RICKYSPANISH_PATH, "get_button_1.png"),
-    "img2": os.path.join(RICKYSPANISH_PATH, "get_button_2.png"),
+    f"img{index+1}": os.path.join(RICKYSPANISH_PATH, file)
+    for index, file in enumerate(os.listdir(RICKYSPANISH_PATH))
+    if file.startswith("get_button_") and file.endswith(".png")
 }
 
 ficha_imgs = {
-    "img1": os.path.join(RICKYSPANISH_PATH, "ficha_1.png"),
+    f"img{index+1}": os.path.join(RICKYSPANISH_PATH, file)
+    for index, file in enumerate(os.listdir(RICKYSPANISH_PATH))
+    if file.startswith("ficha_") and file.endswith(".png")
 }
 
 
