@@ -35,6 +35,7 @@ FightButton_imgs = {
 
 Fighting_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "Fighting_1.png"),
+    "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "Fighting_2.png"),
 }
 
 FinishEvent_imgs = {
@@ -73,11 +74,13 @@ WaitTournament_imgs = {
 PlayerOverMe_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerOverMe_1.png"),
     "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerOverMe_2.png"),
+    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerOverMe_3.png"),
 }
 
 PlayerUnderMe_imgs = {
     "img1": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerUnderMe_1.png"),
     "img2": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerUnderMe_2.png"),
+    "img3": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerUnderMe_3.png"),
 }
 
 DisablePlayer_imgs = {
@@ -594,6 +597,11 @@ def validate_open_info_players():
                 return found
     return found
 
+def miss_click():
+    pyautogui.click(165, 194)
+    time.sleep(0.5)
+    pyautogui.click(165, 194)
+
 
 def start_tournament_flow(reader):
     isStartRound = False
@@ -611,6 +619,7 @@ def start_tournament_flow(reader):
                 isStartRound = start_round()
                 if (isStartRound == True or print("No hay isStartRound")):
                     isStartRound = False
+                    miss_click()
                     isOpen = open_info_players()
                     if (isOpen == True or print("No hay isOpen")):
                         mapeo(reader)
@@ -621,6 +630,7 @@ def start_tournament_flow(reader):
                                 isStartRound = start_round()
                                 if (isStartRound == True or print("No hay isStartRound")):
                                     isStartRound = False
+                                    miss_click()
                                     isOpen = open_info_players()
                                     if (isOpen == True or print("No hay isOpen")):
                                         mapeo(reader)
@@ -631,6 +641,7 @@ def start_tournament_flow(reader):
                                                 isStartRound = start_round()
                                                 if (isStartRound == True or print("No hay isStartRound")):
                                                     isStartRound = False
+                                                    miss_click()
                                                     isOpen = open_info_players()
                                                     if (isOpen == True or print("No hay isOpen")):
                                                         mapeo(reader)
@@ -642,6 +653,7 @@ def start_tournament_flow(reader):
                                                                 isStartRound = start_round()
                                                                 if (isStartRound == True or print("No hay isStartRound")):
                                                                     isStartRound = False
+                                                                    miss_click()
                                                                     isOpen = open_info_players()
                                                                     if (isOpen == True or print("No hay isOpen")):
                                                                         mapeo(
