@@ -9,6 +9,7 @@ import numpy as np
 import cv2
 import msvcrt
 import random
+from glob import glob
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components._GlobalOpenValidateJoin import open_validate_join
@@ -24,59 +25,21 @@ HAPPINESS_PATH = "Images/Happiness"
 GLOBAL_PATH = "Images/Global"
 HOME_PATH = "Images/Home"
 
-MananaMimosa_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
-    if file.startswith("MananaMimosaEvent_") and file.endswith(".png")
-}
+def load_images_from_path(path, prefix, suffix=".png"):
+    return {
+        f"img{index+1}": file
+        for index, file in enumerate(glob(os.path.join(path, f"{prefix}*{suffix}")))
+    }
 
-EventNoRunning_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
-    if file.startswith("EventNoRunning_") and file.endswith(".png")
-}
-
-useFood_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
-    if file.startswith("useFood_") and file.endswith(".png")
-}
-
-LeaveEvent_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
-    if file.startswith("LeaveEvent_") and file.endswith(".png")
-}
-
-useTickets_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
-    if file.startswith("useTickets_") and file.endswith(".png")
-}
-
-participar_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
-    if file.startswith("participar_") and file.endswith(".png")
-}
-
-loading_game_imgs = {
-    f"img{index+1}": os.path.join(GLOBAL_PATH, file)
-    for index, file in enumerate(os.listdir(GLOBAL_PATH))
-    if file.startswith("loading_game_") and file.endswith(".png")
-}
-
-isOut_imgs = {
-    f"img{index+1}": os.path.join(GLOBAL_PATH, file)
-    for index, file in enumerate(os.listdir(GLOBAL_PATH))
-    if file.startswith("isOut_") and file.endswith(".png")
-}
-
-home_imgs = {
-    f"img{index+1}": os.path.join(HOME_PATH, file)
-    for index, file in enumerate(os.listdir(HOME_PATH))
-    if file.startswith("home_") and file.endswith(".png")
-}
+MananaMimosa_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_")
+EventNoRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventNoRunning_")
+useFood_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "useFood_")
+LeaveEvent_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "LeaveEvent_")
+useTickets_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "useTickets_")
+participar_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "participar_")
+loading_game_imgs = load_images_from_path(GLOBAL_PATH, "loading_game_")
+isOut_imgs = load_images_from_path(GLOBAL_PATH, "isOut_")
+home_imgs = load_images_from_path(HOME_PATH, "home_")
 
 happiness_imgs = {
     "img1": os.path.join(HAPPINESS_PATH, "1.png"),
@@ -270,7 +233,7 @@ def goHome():
     return False
 
 
-def function_join_mananamimosa(root):
+def function_join_mananamimosa(root, isThereRewards):
     resp1=open_validate_join()
     if(resp1.get("state")==True):
         while True:
@@ -332,10 +295,10 @@ def function_join_mananamimosa(root):
                 if respA == True or respB == True:
                     isParticipantPressed = participar_button()
                     if isParticipantPressed == True:
-                        isFightDone = confirm_and_fight(resp1.get("reader"))
+                        isFightDone = confirm_and_fight(resp1.get("reader"), isThereRewards)
                         time.sleep(5)
                         restart += 1
-                        random_value = random.choice([2, 3, 4])
+                        # random_value = random.choice([2, 3, 4])
                         # if restart % random_value == 0:
                         #     # isLeaveEvent = leaveEventButton()
                         #     # if(isLeaveEvent == True):

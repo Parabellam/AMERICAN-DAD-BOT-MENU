@@ -1,5 +1,4 @@
 import copy
-import json
 import cv2
 import numpy as np
 import time
@@ -7,178 +6,49 @@ import os
 import pyautogui
 import random
 pyautogui.FAILSAFE = False
+from glob import glob
+from pathlib import Path
+import sys
 
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
 MANANAMIMOSAEVENTFIGHT_PATH = "Images/MananaMimosaEvent/Fight"
+OPENCLOSECHAT_PATH = "Images/Chat"
+GETBUTTONSCHAT_PATH = "Images/Chat/getButtonEvents"
 max_attempts = 10
 
-LoadingTournament_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENT_PATH))
-    if file.startswith("LoadingTournament_") and file.endswith(".png")
-}
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from Components.OpenCloseChat import closeChat, thereAreMessages
+from Events.ChatRewards.getChatRewards import getButtons
 
-isInfoPlayersOpen_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("isInfoPlayersOpen_") and file.endswith(".png")
-}
+def load_images_from_path(path, prefix, suffix=".png"):
+    return {
+        f"img{index+1}": file
+        for index, file in enumerate(glob(os.path.join(path, f"{prefix}*{suffix}")))
+    }
 
-ArrowRight_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("ArrowRight_") and file.endswith(".png")
-}
+LoadingTournament_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "LoadingTournament_")
+isInfoPlayersOpen_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_")
+ArrowRight_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "ArrowRight_")
+FightButton_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "FightButton_")
+Fighting_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "Fighting_")
+FinishEvent_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "FinishEvent_")
+JoiningFight_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "JoiningFight_")
+LeaveFightButton_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "LeaveFightButton_")
+LeavingFight_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "LeavingFight_")
+SelectOpponent_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "SelectOpponent_")
+SelectPlayer_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "SelectPlayer_")
+WaitTournament_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "WaitTournament_")
+PlayerOverMe_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerOverMe_")
+PlayerUnderMe_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "PlayerUnderMe_")
+DisablePlayer_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "DisablePlayer_")
+Join_Chat_imgs = load_images_from_path(OPENCLOSECHAT_PATH, "join_chat_")
+get_button_imgs = load_images_from_path(GETBUTTONSCHAT_PATH, "get_button_")
+leave_button_imgs = load_images_from_path(OPENCLOSECHAT_PATH, "leave_chat_")
 
-FightButton_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("FightButton_") and file.endswith(".png")
-}
-
-Fighting_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("Fighting_") and file.endswith(".png")
-}
-
-FinishEvent_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("FinishEvent_") and file.endswith(".png")
-}
-
-JoiningFight_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("JoiningFight_") and file.endswith(".png")
-}
-
-LeaveFightButton_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("LeaveFightButton_") and file.endswith(".png")
-}
-
-LeavingFight_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("LeavingFight_") and file.endswith(".png")
-}
-
-SelectOpponent_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("SelectOpponent_") and file.endswith(".png")
-}
-
-SelectPlayer_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("SelectPlayer_") and file.endswith(".png")
-}
-
-WaitTournament_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("WaitTournament_") and file.endswith(".png")
-}
-
-PlayerOverMe_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("PlayerOverMe_") and file.endswith(".png")
-}
-
-PlayerUnderMe_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("PlayerUnderMe_") and file.endswith(".png")
-}
-
-DisablePlayer_imgs = {
-    f"img{index+1}": os.path.join(MANANAMIMOSAEVENTFIGHT_PATH, file)
-    for index, file in enumerate(os.listdir(MANANAMIMOSAEVENTFIGHT_PATH))
-    if file.startswith("DisablePlayer_") and file.endswith(".png")
-}
-
-initial_state = [{
-    "position": 1,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 2,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 3,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 4,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 5,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 6,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 7,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 8,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 9,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 10,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 11,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 12,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 13,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 14,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-}, {
-    "position": 15,
-    "power": 0,
-    "reward": "bot",
-    "isMaped": False
-},]
-
+initial_state = [
+    {"position": i, "power": 0, "reward": "bot", "isMaped": False}
+    for i in range(1, 16)
+]
 
 info_players = copy.deepcopy(initial_state)
 
@@ -186,7 +56,6 @@ info_players = copy.deepcopy(initial_state)
 def reset_info_players():
     global info_players
     info_players = copy.deepcopy(initial_state)
-    time.sleep(1)
     return True
 
 
@@ -220,7 +89,7 @@ def wait_match():
 
 
 def open_info_players():
-    time.sleep(1)
+    time.sleep(0.8)
     found = False
     count = 0
     while not found and count < max_attempts:
@@ -231,7 +100,7 @@ def open_info_players():
                 found = True
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
-                time.sleep(random.uniform(4, 5))
+                time.sleep(1.6)
                 return found
     return found
 
@@ -382,7 +251,7 @@ def find_leave_fight_button():
         for _, image_path in LeaveFightButton_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             count += 1
-            time.sleep(2)
+            time.sleep(1)
             if location:
                 found = True
                 center_x, center_y = pyautogui.center(location)
@@ -392,22 +261,30 @@ def find_leave_fight_button():
     return found
 
 
-def start_round():
+def start_round(isThereRewards):
     found = False
     count = 0
+    firstTime = True
     while not found:
         for _, image_path in SelectOpponent_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            location = pyautogui.locateOnScreen(image_path, confidence=0.9)
             count += 1
             if location:
                 found = True
                 return found
             else:
-                time.sleep(1)
-                if (count > 200):
-                    print(
-                        "No se ha encontrado el texto Seleccionar al siguiente oponente.")
-                    found = False
+                if(isThereRewards and firstTime and thereAreMessages()):
+                    firstTime = False
+                    getButtons()
+                    chatResp = closeChat()
+                    if(chatResp == False):
+                        pyautogui.click(736, 314)
+                else:
+                    time.sleep(1)
+                    if (count > 200):
+                        print(
+                            "No se ha encontrado el texto Seleccionar al siguiente oponente.")
+                        found = False
     time.sleep(2)
     return found
 
@@ -419,7 +296,7 @@ def wait_next_round():
         for _, image_path in WaitTournament_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             if location:
-                time.sleep(random.uniform(7, 9))
+                time.sleep(5)
                 failCount += 1
             else:
                 count += 1
@@ -427,10 +304,9 @@ def wait_next_round():
 
 def attack(round):
     pyautogui.click(1012, 610)
-    time.sleep(1)
     isLoad = loading()
     if (isLoad == True):
-        time.sleep(random.uniform(4, 5))
+        time.sleep(4)
         isPressedLeaveFight = find_leave_fight_button()
         if (isPressedLeaveFight):
             wait_next_round()
@@ -558,14 +434,16 @@ def round_5(reader):
 
 def leave_tournament():
     found = False
+    time.sleep(1.5)
     while not found:
         for _, image_path in FinishEvent_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             if location:
+                time.sleep(2.5)
                 found = True
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
-                time.sleep(1)
+                time.sleep(1.5)
                 return found
 
 
@@ -577,7 +455,7 @@ def mapeo(reader):
         if unmapped_count == 1:
             break
 
-        time.sleep(1)
+        time.sleep(0.8)
         position, power, state = mapear_info_player(reader)
         if position <= 15:
             info_players[position - 1]["power"] = power
@@ -616,7 +494,7 @@ def miss_click():
     pyautogui.click(165, 194)
 
 
-def start_tournament_flow(reader):
+def start_tournament_flow(reader, isThereRewards):
     isStartRound = False
     while True:
         isOpen = open_info_players()
@@ -629,7 +507,7 @@ def start_tournament_flow(reader):
         if (respR1 == True or print("No hay respR1")):
             isReset = reset_info_players()
             if (isReset == True or print("No hay isReset")):
-                isStartRound = start_round()
+                isStartRound = start_round(isThereRewards)
                 if (isStartRound == True or print("No hay isStartRound")):
                     isStartRound = False
                     miss_click()
@@ -640,7 +518,7 @@ def start_tournament_flow(reader):
                         if (respR2 == True):
                             isReset = reset_info_players()
                             if (isReset == True or print("No hay isReset")):
-                                isStartRound = start_round()
+                                isStartRound = start_round(isThereRewards)
                                 if (isStartRound == True or print("No hay isStartRound")):
                                     isStartRound = False
                                     miss_click()
@@ -651,7 +529,7 @@ def start_tournament_flow(reader):
                                         if (respR3 == True):
                                             isReset = reset_info_players()
                                             if (isReset == True or print("No hay isReset")):
-                                                isStartRound = start_round()
+                                                isStartRound = start_round(isThereRewards)
                                                 if (isStartRound == True or print("No hay isStartRound")):
                                                     isStartRound = False
                                                     miss_click()
@@ -663,7 +541,7 @@ def start_tournament_flow(reader):
                                                         if (respR4 == True):
                                                             isReset = reset_info_players()
                                                             if (isReset == True or print("No hay isReset")):
-                                                                isStartRound = start_round()
+                                                                isStartRound = start_round(False)
                                                                 if (isStartRound == True or print("No hay isStartRound")):
                                                                     isStartRound = False
                                                                     miss_click()
@@ -697,7 +575,7 @@ def start_tournament_flow(reader):
     return False
 
 
-def confirm_and_fight(reader):
+def confirm_and_fight(reader, isThereRewards):
     reset_info_players()
     ConfirmJoinTournament_imgs = {
         "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "ConfirmJoinTournament_1.png"),
@@ -705,12 +583,12 @@ def confirm_and_fight(reader):
     }
     found = False
     count = 0
-    time.sleep(1)
     while not found and count < max_attempts:
         for _, image_path in ConfirmJoinTournament_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             count += 1
             if location:
+                time.sleep(0.2)
                 found = True
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
@@ -720,7 +598,7 @@ def confirm_and_fight(reader):
     if (found == True):
         isStart = wait_match()
         if (isStart == True):
-            tournamentResp = start_tournament_flow(reader)
+            tournamentResp = start_tournament_flow(reader, isThereRewards)
             if (tournamentResp == True):
                 return tournamentResp
             else:
