@@ -20,7 +20,7 @@ def open_validate_join(isReloadGame = False):
         preload_easyocr()
         resp1 = open_bluestacks_window()
         time.sleep(1.5)
-    if(resp1 or isReloadGame == True):
+    if(isReloadGame == True or resp1):
         resp2 = detect_screen()
     else:
         return "Error al abrir Bluestacks"

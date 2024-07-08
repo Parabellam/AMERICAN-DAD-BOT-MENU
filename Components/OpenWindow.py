@@ -7,9 +7,7 @@ def open():
         bluestacks_window = windows[0]
         bluestacks_window.activate()
         bluestacks_window.maximize()
-        return True
-    else:
-        return False
+    return True
 
 
 def open_bluestacks_window():

@@ -4,7 +4,7 @@ from Components.LoadImages import load_images_from_path
 
 HOME_PATH = "Images/Home"
 
-muro_izquierdo_imgs = load_images_from_path(HOME_PATH, "muro_izquierdo_1")
+muro_izquierdo_imgs = load_images_from_path(HOME_PATH, "muro_izquierdo_")
 
 
 def check_roger_bar_position():

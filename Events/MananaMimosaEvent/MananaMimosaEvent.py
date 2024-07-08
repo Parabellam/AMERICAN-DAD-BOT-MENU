@@ -147,7 +147,6 @@ def validate_open_event():
             found = True
             if location:
                 return found
-    print("No se logró validar validate_open_event")
     return found
 
 
