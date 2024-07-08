@@ -7,11 +7,7 @@ import os
 OPENCLOSECHAT_PATH = "Images/Chat"
 GETBUTTONSCHAT_PATH = "Images/Chat/getButtonEvents"
 
-def load_images_from_path(path, prefix, suffix=".png"):
-    return {
-        f"img{index+1}": file
-        for index, file in enumerate(glob(os.path.join(path, f"{prefix}*{suffix}")))
-    }
+from Components.LoadImages import load_images_from_path
 
 leave_button_imgs = load_images_from_path(OPENCLOSECHAT_PATH, "leave_chat_")
 Join_Chat_imgs = load_images_from_path(OPENCLOSECHAT_PATH, "join_chat_")

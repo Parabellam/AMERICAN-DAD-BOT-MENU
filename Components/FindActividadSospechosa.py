@@ -27,9 +27,13 @@ def isActividadSospechosa():
             location = pyautogui.locateOnScreen(image_path, confidence=0.9)
             count += 1
             if location:
-                print("Se ha detectado una actividad sospechosa.")
-                for _ in range(5):
+                print("Se ha detectado una actividad sospechosa 1.")
+                for _ in range(3):
                     play_alert_sound()
-                    time.sleep(10)
+                    time.sleep(1)
+                    print("Se ha detectado una actividad sospechosa 2.")
+                    time.sleep(9)
+                    print("Se ha detectado una actividad sospechosa 3.")
+                    time.sleep(1)
                 return True
     return False

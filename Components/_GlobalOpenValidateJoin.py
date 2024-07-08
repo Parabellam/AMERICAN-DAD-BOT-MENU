@@ -11,15 +11,16 @@ from Components.OpenWindow import open_bluestacks_window
 from Components.JoinMap import open_main_map
 
 def preload_easyocr():
-    time.sleep(2)
+    time.sleep(1.5)
     global reader
     reader = easyocr.Reader(['en'], gpu=False)
 
-def open_validate_join():
-    preload_easyocr()
-    resp1 = open_bluestacks_window()
-    time.sleep(2)
-    if(resp1):
+def open_validate_join(isReloadGame = False):
+    if(isReloadGame==False):
+        preload_easyocr()
+        resp1 = open_bluestacks_window()
+        time.sleep(1.5)
+    if(resp1 or isReloadGame == True):
         resp2 = detect_screen()
     else:
         return "Error al abrir Bluestacks"

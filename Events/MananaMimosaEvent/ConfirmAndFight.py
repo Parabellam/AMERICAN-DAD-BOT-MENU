@@ -6,7 +6,6 @@ import os
 import pyautogui
 import random
 pyautogui.FAILSAFE = False
-from glob import glob
 from pathlib import Path
 import sys
 
@@ -20,11 +19,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components.OpenCloseChat import closeChat, thereAreMessages
 from Events.ChatRewards.getChatRewards import getButtons
 
-def load_images_from_path(path, prefix, suffix=".png"):
-    return {
-        f"img{index+1}": file
-        for index, file in enumerate(glob(os.path.join(path, f"{prefix}*{suffix}")))
-    }
+from Components.LoadImages import load_images_from_path
 
 LoadingTournament_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "LoadingTournament_")
 isInfoPlayersOpen_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_")

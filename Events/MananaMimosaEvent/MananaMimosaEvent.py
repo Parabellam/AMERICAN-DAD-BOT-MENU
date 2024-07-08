@@ -7,29 +7,25 @@ import pyautogui
 pyautogui.FAILSAFE = False
 import numpy as np
 import cv2
-import msvcrt
-import random
-from glob import glob
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components._GlobalOpenValidateJoin import open_validate_join
 from Components.FindActividadSospechosa import isActividadSospechosa
-from Components.RandomActivities import find_random_activity
+from Components.LoadImages import load_images_from_path
+from Components.ReloadGame import reload_game_another_session
 from ManageJSON.ManageJSONFile import get_value_from_json
 
 from Events.MananaMimosaEvent.ConfirmAndFight import confirm_and_fight
 from Events.RickySpanishIslandEvent.RickySpanishIslandEvent import chatEvent
+from Components.CloseButton import close_button
+from Components.CheckRogerBarPosition import check_roger_bar_position
 
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
 HAPPINESS_PATH = "Images/Happiness"
 GLOBAL_PATH = "Images/Global"
 HOME_PATH = "Images/Home"
+ANOTHER_SESSION_BUTTON_PATH = "Images/Errors"
 
-def load_images_from_path(path, prefix, suffix=".png"):
-    return {
-        f"img{index+1}": file
-        for index, file in enumerate(glob(os.path.join(path, f"{prefix}*{suffix}")))
-    }
 
 MananaMimosa_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_")
 EventNoRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventNoRunning_")
@@ -40,6 +36,7 @@ participar_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "participar_")
 loading_game_imgs = load_images_from_path(GLOBAL_PATH, "loading_game_")
 isOut_imgs = load_images_from_path(GLOBAL_PATH, "isOut_")
 home_imgs = load_images_from_path(HOME_PATH, "home_")
+another_session_button_imgs = load_images_from_path(ANOTHER_SESSION_BUTTON_PATH, "another_session_button_")
 
 happiness_imgs = {
     "img1": os.path.join(HAPPINESS_PATH, "1.png"),
@@ -53,6 +50,8 @@ happiness_imgs = {
 }
 
 max_attempts = 10
+lastBattleFood = [0, 1, 2, 3]
+lBFoodPosition = 0
 
 def open_event():
     time.sleep(1)
@@ -134,6 +133,7 @@ def participar_button():
                 pyautogui.click(center_x, center_y)
                 time.sleep(1)
                 return found
+    print("No se logró encontrar participar_button")
     return found
 
 
@@ -147,6 +147,7 @@ def validate_open_event():
             found = True
             if location:
                 return found
+    print("No se logró validar validate_open_event")
     return found
 
 
@@ -233,7 +234,12 @@ def goHome():
     return False
 
 
+def reload_game(root):
+    reload_game_another_session(root)
+
+
 def function_join_mananamimosa(root, isThereRewards):
+    global lastBattleFood, lBFoodPosition
     resp1=open_validate_join()
     if(resp1.get("state")==True):
         while True:
@@ -255,13 +261,9 @@ def function_join_mananamimosa(root, isThereRewards):
             while True:
                 respActividadSospechosa = isActividadSospechosa()
                 if(respActividadSospechosa == True):
-                    root.destroy()
-                    return respActividadSospechosa
-                if msvcrt.kbhit():
-                    if msvcrt.getch().decode('utf-8').lower() == 'q':
-                        print("Interrupción por usuario. Terminando...")
-                        break
-
+                    time.sleep(180)
+                    reload_game(root)
+                
                 current_food_list = find_number_food(resp1.get("reader"))
                 if current_food_list:
                     current_food = int(current_food_list[0])
@@ -271,6 +273,26 @@ def function_join_mananamimosa(root, isThereRewards):
                         current_food = int(current_food_list[0])
                     else:
                         current_food = 0
+                
+                lastBattleFood[lBFoodPosition] = current_food
+                if all(x == lastBattleFood[0] for x in lastBattleFood):
+                    print("La comida no está aumentando, resolviendo incidencia...")
+                    close_button()
+                    time.sleep(1)
+                    pyautogui.press('esc')
+                    time.sleep(1)
+                    close_button()
+                    barResp = check_roger_bar_position()
+                    if barResp == False:
+                        return
+                    pyautogui.doubleClick(652, 474)
+                    time.sleep(1)
+                    respCloseButton = close_button()
+                    if respCloseButton == True:
+                        time.sleep(1)
+                    open_validate_join()
+                    open_event()
+                    validate_open_event()
 
                 max_food = get_value_from_json("q6w5f4weg54er584")
 
@@ -284,59 +306,23 @@ def function_join_mananamimosa(root, isThereRewards):
                 respA = False
                 respB = False
                 if current_food > average:
-                    # print("Tu comida actual SÍ supera el 50 por ciento de capacidad, USANDO COMIDA para el torneo.")
                     respA = use_food_option()
-                    time.sleep(2)
+                    time.sleep(1.5)
                 else:
-                    # print("Tu comida actual NO supera el 50 por ciento de capacidad, USANDO TICKETS para el torneo.")
                     respB = use_tickets_option()
-                    time.sleep(2)
+                    time.sleep(1.5)
 
                 if respA == True or respB == True:
                     isParticipantPressed = participar_button()
                     if isParticipantPressed == True:
                         isFightDone = confirm_and_fight(resp1.get("reader"), isThereRewards)
-                        time.sleep(5)
+                        time.sleep(4)
                         restart += 1
-                        # random_value = random.choice([2, 3, 4])
-                        # if restart % random_value == 0:
-                        #     # isLeaveEvent = leaveEventButton()
-                        #     # if(isLeaveEvent == True):
-                        #     #     isHome = goHome()
-                        #     #     if(isHome):
-                        #     #         find_random_activity()
-                        #     #     else:
-                        #     #         print("No se ha encontrado el botón de casa")
-                        #     # else:
-                        #     #     print("No se ha logrado salir del evento")
-                            
-                            
-                            
-                            
-                        #     pyautogui.click(1348, 704)
-                        #     time.sleep(10)
-                        #     pyautogui.click(909, 94) # Borrar todas las aplicaciones abiertas
-                        #     time.sleep(120)
-                        #     time.sleep(120)
-                        #     time.sleep(120)
-                        #     time.sleep(random.uniform(120, 240))
-                        #     time.sleep(random.uniform(120, 240))
-                        #     time.sleep(120)
-                        #     time.sleep(120)
-                        #     time.sleep(120)
-                        #     pyautogui.click(950, 227) # Entra al juego
-                        #     time.sleep(3)
-                        #     pyautogui.click(950, 227) # Entra al juego
-                        #     loadDone = isLoadingGame()
-                        #     if(loadDone==True):
-                        #         pyautogui.click(137, 657)
-                        #         time.sleep(7)
-                        #         pyautogui.click(1100, 186)
-                        #         time.sleep(7)
-                        #         # another_tasks()
-                        #     else:
-                        #         # validate_screen()
-                        #         print("Error al cargar el juego")
+                        if lBFoodPosition == 3:
+                            lBFoodPosition = 0
+                            lastBattleFood = [0, 1, 2, 3]
+                        else:
+                            lBFoodPosition += 1
                     else:
                         print("No hemos podido encontrar el botón de participar.")
                 else:
