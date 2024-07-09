@@ -44,13 +44,11 @@ def reload_game_another_session(root):
         time.sleep(10)
         count = 0
         while count == 0:
-            print("esc 1")
             pyautogui.press('esc')
             time.sleep(2.5)
             for _, image_path in leave_home_msg_imgs.items():
                 location = pyautogui.locateOnScreen(image_path, confidence=0.9)
                 if location:
-                    print("esc 2")
                     pyautogui.press('esc')
                     count = 1
                     time.sleep(1.5)
@@ -58,12 +56,12 @@ def reload_game_another_session(root):
         for _, image_path2 in leave_home_msg_imgs.items():
             location2 = pyautogui.locateOnScreen(image_path2, confidence=0.9)
             if location2:
-                print("esc 3")
                 pyautogui.press('esc')
                 count = 1
                 time.sleep(1)
                 break
         print("El juego logró cargar correctamente, validando pantalla.")
+        time.sleep(2)
     elif(failCount > 199):
         print("El juego NO logró cargar correctamente.")
         time.sleep(5)

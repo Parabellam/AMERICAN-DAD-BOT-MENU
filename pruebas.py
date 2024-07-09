@@ -7,6 +7,7 @@ pyautogui.FAILSAFE = False
 ANOTHER_SESSION_BUTTON_PATH = "Images/Errors"
 GLOBAL_PATH = "Images/Global"
 HOME_PATH = "Images/Home"
+MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components.LoadImages import load_images_from_path
@@ -15,6 +16,25 @@ from Components._GlobalOpenValidateJoin import open_validate_join
 another_session_button_imgs = load_images_from_path(ANOTHER_SESSION_BUTTON_PATH, "another_session_button_")
 loading_game_imgs = load_images_from_path(GLOBAL_PATH, "loading_game_")
 leave_home_msg_imgs = load_images_from_path(HOME_PATH, "leave_home_msg_")
+EventNoRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventNoRunning_")
+
+def open_event():
+    time.sleep(1)
+    pyautogui.click(1096, 180)
+    return True
+
+def validate_open_event():
+    found = False
+    count = 0
+    while not found and count < 10:
+        for _, image_path in EventNoRunning_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            count += 1
+            found = True
+            if location:
+                return found
+    print("No se logró validar si el evento Manana Mimosa ha abierto.")
+    return found
 
 def reload_game_another_session(root):
     count = 0
@@ -44,13 +64,11 @@ def reload_game_another_session(root):
         time.sleep(10)
         count = 0
         while count == 0:
-            print("esc 1")
             pyautogui.press('esc')
             time.sleep(2.5)
             for _, image_path in leave_home_msg_imgs.items():
                 location = pyautogui.locateOnScreen(image_path, confidence=0.9)
                 if location:
-                    print("esc 2")
                     pyautogui.press('esc')
                     count = 1
                     time.sleep(1.5)
@@ -58,16 +76,19 @@ def reload_game_another_session(root):
         for _, image_path2 in leave_home_msg_imgs.items():
             location2 = pyautogui.locateOnScreen(image_path2, confidence=0.9)
             if location2:
-                print("esc 3")
                 pyautogui.press('esc')
                 count = 1
                 time.sleep(1)
                 break
         print("El juego logró cargar correctamente, validando pantalla.")
+        time.sleep(2)
     elif(failCount > 199):
         print("El juego NO logró cargar correctamente.")
         time.sleep(5)
         root.destroy()
     open_validate_join(True)
-    
-reload_game_another_session(True)
+
+
+reload_game_another_session(False)
+open_event()
+validate_open_event()

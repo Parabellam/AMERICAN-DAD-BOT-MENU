@@ -147,6 +147,7 @@ def validate_open_event():
             found = True
             if location:
                 return found
+    print("No se logró validar si el evento Manana Mimosa ha abierto.")
     return found
 
 
@@ -260,8 +261,10 @@ def function_join_mananamimosa(root, isThereRewards):
             while True:
                 respActividadSospechosa = isActividadSospechosa()
                 if(respActividadSospechosa == True):
-                    time.sleep(180)
+                    time.sleep(160)
                     reload_game(root)
+                    open_event()
+                    validate_open_event()
                 
                 current_food_list = find_number_food(resp1.get("reader"))
                 if current_food_list:
