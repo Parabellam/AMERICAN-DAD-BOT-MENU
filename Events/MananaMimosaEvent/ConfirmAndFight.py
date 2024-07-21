@@ -20,6 +20,10 @@ from Components.OpenCloseChat import closeChat, thereAreMessages
 from Events.ChatRewards.getChatRewards import getButtons
 
 from Components.LoadImages import load_images_from_path
+from Components.MananaMimosa.ValidateOpenEvent import validate_open_event
+from Components.MananaMimosa.ValidateOpenEvent import open_event
+from Components.ReloadGame import reload_game_another_session
+from Components.isErrorMessage import main_are_there_errors
 
 LoadingTournament_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "LoadingTournament_")
 isInfoPlayersOpen_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_")
@@ -84,10 +88,10 @@ def wait_match():
 
 
 def open_info_players():
-    time.sleep(0.8)
+    time.sleep(1.5)
     found = False
     count = 0
-    while not found and count < max_attempts:
+    while not found and count < 15:
         for _, image_path in SelectPlayer_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             count += 1
@@ -95,8 +99,10 @@ def open_info_players():
                 found = True
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
-                time.sleep(1.6)
+                time.sleep(0.5)
                 return found
+            else:
+                time.sleep(1)
     return found
 
 
@@ -242,11 +248,11 @@ def loading():
 def find_leave_fight_button():
     found = False
     count = 0
-    while not found and count < max_attempts:
+    while not found and count < 30:
         for _, image_path in LeaveFightButton_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             count += 1
-            time.sleep(1)
+            time.sleep(2)
             if location:
                 found = True
                 center_x, center_y = pyautogui.center(location)
@@ -256,7 +262,8 @@ def find_leave_fight_button():
     return found
 
 
-def start_round(isThereRewards):
+def start_round(isThereRewards, root):
+    errorCount = 0
     found = False
     count = 0
     firstTime = True
@@ -277,9 +284,18 @@ def start_round(isThereRewards):
                 else:
                     time.sleep(1)
                     if (count > 200):
-                        print(
-                            "No se ha encontrado el texto Seleccionar al siguiente oponente.")
-                        found = False
+                        print(f"No se ha encontrado el texto Seleccionar al siguiente oponente. Error count hasta 50: {errorCount}")
+                        time.sleep(1)
+                        errorCount += 1
+                        if(errorCount > 50):
+                            print("Tienes 50 segundos para entrar al juego.")
+                            time.sleep(50)
+                            reload_game_another_session(root)
+                            open_event()
+                            validate_open_event()
+                            found = True
+                        else:
+                            found = False
     time.sleep(2)
     return found
 
@@ -450,7 +466,8 @@ def mapeo(reader):
         if unmapped_count == 1:
             break
 
-        time.sleep(0.8)
+        if main_are_there_errors():
+            return "Error"
         position, power, state = mapear_info_player(reader)
         if position <= 15:
             info_players[position - 1]["power"] = power
@@ -465,10 +482,6 @@ def mapeo(reader):
             player["reward"] = "No"
             # Deja isMaped como False
             break
-
-    # mapped_data_str = "\n".join(
-    #     [json.dumps(player, indent=2) for player in info_players])
-    # print("Datos mapeados: ", mapped_data_str)
 
 
 def validate_open_info_players():
@@ -489,66 +502,113 @@ def miss_click():
     pyautogui.click(165, 194)
 
 
-def start_tournament_flow(reader, isThereRewards):
+def start_tournament_flow(reader, isThereRewards, root):
     isStartRound = False
     while True:
         isOpen = open_info_players()
+        if main_are_there_errors():
+            print("Conectate, tienes 10 minutos para completar el evento")
+            time.sleep(600)
+            return True
         validate = validate_open_info_players()
         if isOpen and validate:
             break
     if isOpen == True and validate:
-        mapeo(reader)
+        mapResp = mapeo(reader)
+        if(mapResp=="Error"):
+            print("Conectate, tienes 10 minutos para completar el evento")
+            time.sleep(600)
+            return True
         respR1 = round_1(reader)
+        if main_are_there_errors():
+            print("Conectate, tienes 10 minutos para completar el evento")
+            time.sleep(600)
+            return True
         if (respR1 == True or print("No hay respR1")):
             isReset = reset_info_players()
             if (isReset == True or print("No hay isReset")):
-                isStartRound = start_round(isThereRewards)
+                isStartRound = start_round(isThereRewards, root)
                 if (isStartRound == True or print("No hay isStartRound")):
                     isStartRound = False
                     miss_click()
                     isOpen = open_info_players()
+                    if main_are_there_errors():
+                        print("Conectate, tienes 10 minutos para completar el evento")
+                        time.sleep(600)
+                        return True
                     if (isOpen == True or print("No hay isOpen")):
-                        mapeo(reader)
+                        mapResp = mapeo(reader)
+                        if(mapResp=="Error"):
+                            print("Conectate, tienes 10 minutos para completar el evento")
+                            time.sleep(600)
+                            return True
                         respR2 = round_2(reader)
                         if (respR2 == True):
                             isReset = reset_info_players()
                             if (isReset == True or print("No hay isReset")):
-                                isStartRound = start_round(isThereRewards)
+                                isStartRound = start_round(isThereRewards, root)
                                 if (isStartRound == True or print("No hay isStartRound")):
                                     isStartRound = False
                                     miss_click()
                                     isOpen = open_info_players()
+                                    if main_are_there_errors():
+                                        print("Conectate, tienes 10 minutos para completar el evento")
+                                        time.sleep(600)
+                                        return True
                                     if (isOpen == True or print("No hay isOpen")):
-                                        mapeo(reader)
+                                        mapResp = mapeo(reader)
+                                        if(mapResp=="Error"):
+                                            print("Conectate, tienes 10 minutos para completar el evento")
+                                            time.sleep(600)
+                                            return True
                                         respR3 = round_3(reader, 3)
                                         if (respR3 == True):
                                             isReset = reset_info_players()
                                             if (isReset == True or print("No hay isReset")):
-                                                isStartRound = start_round(isThereRewards)
+                                                isStartRound = start_round(isThereRewards, root)
                                                 if (isStartRound == True or print("No hay isStartRound")):
                                                     isStartRound = False
                                                     miss_click()
                                                     isOpen = open_info_players()
+                                                    if main_are_there_errors():
+                                                        print("Conectate, tienes 7 minutos para completar el evento")
+                                                        time.sleep(420)
+                                                        return True
                                                     if (isOpen == True or print("No hay isOpen")):
-                                                        mapeo(reader)
+                                                        mapResp = mapeo(reader)
+                                                        if(mapResp=="Error"):
+                                                            print("Conectate, tienes 7 minutos para completar el evento")
+                                                            time.sleep(420)
+                                                            return True
                                                         respR4 = round_4(
                                                             reader)
                                                         if (respR4 == True):
                                                             isReset = reset_info_players()
                                                             if (isReset == True or print("No hay isReset")):
-                                                                isStartRound = start_round(False)
+                                                                isStartRound = start_round(False, root)
                                                                 if (isStartRound == True or print("No hay isStartRound")):
                                                                     isStartRound = False
                                                                     miss_click()
                                                                     isOpen = open_info_players()
+                                                                    if main_are_there_errors():
+                                                                        print("Conectate, tienes 5 minutos para completar el evento")
+                                                                        time.sleep(300)
+                                                                        return True
                                                                     if (isOpen == True or print("No hay isOpen")):
-                                                                        mapeo(
-                                                                            reader)
+                                                                        mapResp = mapeo(reader)
+                                                                        if(mapResp=="Error"):
+                                                                            print("Conectate, tienes 5 minutos para completar el evento")
+                                                                            time.sleep(300)
+                                                                            return True
                                                                         respR5 = round_5(
                                                                             reader)
                                                                         if (respR5 == True):
                                                                             isReset = reset_info_players()
                                                                             if (isReset == True or print("No hay isReset")):
+                                                                                if main_are_there_errors():
+                                                                                    print("Conectate, tienes 3 minutos para completar el evento")
+                                                                                    time.sleep(180)
+                                                                                    return True
                                                                                 isLeaving = leave_tournament()
                                                                                 if (isLeaving == True):
                                                                                     return True
@@ -570,7 +630,7 @@ def start_tournament_flow(reader, isThereRewards):
     return False
 
 
-def confirm_and_fight(reader, isThereRewards):
+def confirm_and_fight(reader, isThereRewards, root):
     reset_info_players()
     ConfirmJoinTournament_imgs = {
         "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "ConfirmJoinTournament_1.png"),
@@ -590,19 +650,21 @@ def confirm_and_fight(reader, isThereRewards):
             else:
                 time.sleep(1)
                 pyautogui.click(997, 647)
+    if main_are_there_errors():
+        print("5")
+        return False
     if (found == True):
         isStart = wait_match()
         if (isStart == True):
-            tournamentResp = start_tournament_flow(reader, isThereRewards)
-            if (tournamentResp == True):
+            tournamentResp = start_tournament_flow(reader, isThereRewards, root)
+            if (tournamentResp == True or tournamentResp == "Error"):
                 return tournamentResp
             else:
                 print("El torneo NO se ha completado correctamente.")
-                return tournamentResp
+                return False
         else:
             print("No se encontro match")
             return False
     else:
         print("No se encontró el botón para confirmar batalla")
         return False
-    return

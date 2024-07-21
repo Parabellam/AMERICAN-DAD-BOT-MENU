@@ -19,6 +19,13 @@ from Events.MananaMimosaEvent.ConfirmAndFight import confirm_and_fight
 from Events.RickySpanishIslandEvent.RickySpanishIslandEvent import chatEvent
 from Components.CloseButton import close_button
 from Components.CheckRogerBarPosition import check_roger_bar_position
+from Components.GetHomeScreen import main_get_home_screen
+from Components.isThereFamiliaLandiaWar import main_is_there_familialandia_war
+from Components.MananaMimosa.ValidateOpenEvent import validate_open_event
+from Components.MananaMimosa.ValidateOpenEvent import open_event
+from Components.MananaMimosa.IsEventRunning import isEventRuning
+
+from Components.isErrorMessage import main_are_there_errors
 
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
 HAPPINESS_PATH = "Images/Happiness"
@@ -28,7 +35,6 @@ ANOTHER_SESSION_BUTTON_PATH = "Images/Errors"
 
 
 MananaMimosa_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "MananaMimosaEvent_")
-EventNoRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventNoRunning_")
 useFood_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "useFood_")
 LeaveEvent_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "LeaveEvent_")
 useTickets_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "useTickets_")
@@ -53,31 +59,6 @@ max_attempts = 10
 lastBattleFood = [0, 1, 2, 3]
 lBFoodPosition = 0
 
-def open_event():
-    time.sleep(1)
-    pyautogui.click(1096, 180)
-    return True
-
-def isEventRuning():
-    time.sleep(2)
-    found = False
-    count = 0
-    while not found and count < max_attempts:
-        for _, image_path in EventNoRunning_imgs.items():
-            locationNoRunning = pyautogui.locateOnScreen(image_path, confidence=0.95)
-            count += 1
-            if locationNoRunning:
-                found = True
-                return "No running"
-        # if(found==False):
-        #     for _, image_path in EventRunning_imgs.items():
-        #         locationRunning = pyautogui.locateOnScreen(image_path, confidence=0.95)
-        #         count += 1
-        #         if locationRunning:
-        #             found = True
-        #             return "Running"
-    return False
-
 
 def preprocess_image(img):
     # Convertir a escala de grises
@@ -93,7 +74,7 @@ def preprocess_image(img):
     return img_eroded
 
 def find_number_food(reader):
-    time.sleep(3)
+    time.sleep(2)
     # Definir y capturar la región de interés
     top_left_x, top_left_y, bottom_right_x, bottom_right_y = 353, 141, 466, 166
     img = pyautogui.screenshot(region=(top_left_x, top_left_y, bottom_right_x - top_left_x, bottom_right_y - top_left_y))
@@ -123,7 +104,7 @@ def use_food_option():
 def participar_button():
     found = False
     count = 0
-    while not found and count < max_attempts:
+    while not found and count < 20:
         for _, image_path in participar_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.95)
             count += 1
@@ -134,20 +115,6 @@ def participar_button():
                 time.sleep(1)
                 return found
     print("No se logró encontrar participar_button")
-    return found
-
-
-def validate_open_event():
-    found = False
-    count = 0
-    while not found and count < max_attempts:
-        for _, image_path in EventNoRunning_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
-            count += 1
-            found = True
-            if location:
-                return found
-    print("No se logró validar si el evento Manana Mimosa ha abierto.")
     return found
 
 
@@ -238,7 +205,7 @@ def reload_game(root):
     reload_game_another_session(root)
 
 
-def function_join_mananamimosa(root, isThereRewards):
+def function_join_mananamimosa(root, isThereRewards, isNightMode):
     global lastBattleFood, lBFoodPosition
     resp1=open_validate_join()
     if(resp1.get("state")==True):
@@ -258,14 +225,21 @@ def function_join_mananamimosa(root, isThereRewards):
             return print("No hemos conseguido detectar el menú principal del evento ni el torneo en progreso, inicia de nuevo el proceso.")
         else:
             restart = 1
+            battlesCount = 0
             while True:
+                battlesCount += 1
                 respActividadSospechosa = isActividadSospechosa()
                 if(respActividadSospechosa == True):
                     time.sleep(160)
                     reload_game(root)
                     open_event()
                     validate_open_event()
-                
+                if main_are_there_errors():
+                    print("1")
+                    open_validate_join(True)
+                    open_event()
+                    validate_open_event()
+                    continue
                 current_food_list = find_number_food(resp1.get("reader"))
                 if current_food_list:
                     current_food = int(current_food_list[0])
@@ -275,26 +249,64 @@ def function_join_mananamimosa(root, isThereRewards):
                         current_food = int(current_food_list[0])
                     else:
                         current_food = 0
+                        current_food_list = find_number_food(resp1.get("reader"))
+                        current_food = int(current_food_list[0])
+                        if current_food > 0:
+                            print("Error captura de comida corregido")
+                        else:
+                            current_food = 0
                 
                 lastBattleFood[lBFoodPosition] = current_food
+                if main_are_there_errors():
+                    print("2")
+                    open_validate_join(True)
+                    open_event()
+                    validate_open_event()
+                    continue
                 if all(x == lastBattleFood[0] for x in lastBattleFood):
-                    print("La comida no está aumentando, resolviendo incidencia...")
+                    print("La comida no está aumentando, resolviendo incidencia.")
                     close_button()
                     time.sleep(1)
                     pyautogui.press('esc')
                     time.sleep(1)
                     close_button()
+                    if main_are_there_errors():
+                        print("3")
+                        open_validate_join(True)
+                        open_event()
+                        validate_open_event()
+                        continue
                     barResp = check_roger_bar_position()
                     if barResp == False:
                         return
                     pyautogui.doubleClick(652, 474)
                     time.sleep(1)
+                    pyautogui.doubleClick(601, 467)
+                    main_get_home_screen()
                     respCloseButton = close_button()
                     if respCloseButton == True:
                         time.sleep(1)
+                    main_are_there_errors()
                     open_validate_join()
                     open_event()
                     validate_open_event()
+                elif (battlesCount > 6 and isNightMode == False):
+                    main_get_home_screen()
+                    main_are_there_errors()
+                    reso = main_is_there_familialandia_war()
+                    if(reso==True):
+                        print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
+                        time.sleep(2)
+                        print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
+                        time.sleep(2)
+                        print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
+                        time.sleep(116)
+                        reload_game(root)
+                    main_are_there_errors()
+                    open_validate_join(True)
+                    open_event()
+                    validate_open_event()
+                    battlesCount = 0
 
                 max_food = get_value_from_json("q6w5f4weg54er584")
 
@@ -309,15 +321,26 @@ def function_join_mananamimosa(root, isThereRewards):
                 respB = False
                 if current_food > average:
                     respA = use_food_option()
-                    time.sleep(1.5)
+                    time.sleep(1.2)
                 else:
                     respB = use_tickets_option()
-                    time.sleep(1.5)
-
+                    time.sleep(1.2)
+                if main_are_there_errors():
+                    print("4")
+                    open_validate_join(True)
+                    open_event()
+                    validate_open_event()
+                    continue
                 if respA == True or respB == True:
                     isParticipantPressed = participar_button()
                     if isParticipantPressed == True:
-                        isFightDone = confirm_and_fight(resp1.get("reader"), isThereRewards)
+                        isFightDone = confirm_and_fight(resp1.get("reader"), isThereRewards, root)
+                        if isFightDone == False or isFightDone == "Error":
+                            reload_game()
+                            main_get_home_screen()
+                            open_validate_join(True)
+                            open_event()
+                            validate_open_event()
                         time.sleep(4)
                         restart += 1
                         if lBFoodPosition == 3:

@@ -39,18 +39,30 @@ class TelegramConsoleRedirector:
         self.buffer = ""
 
     def write(self, message):
-        self.text_widget.insert(tk.END, message)
-        self.text_widget.see(tk.END)
-
-        self.buffer += message
-        if '\n' in self.buffer:
-            enqueue_telegram_message(self.buffer.strip())
-            self.buffer = ""
+        try:
+            if self.text_widget.winfo_exists():  # Verifica si el widget existe
+                self.text_widget.insert(tk.END, message)
+                self.text_widget.see(tk.END)
+                self.buffer += message
+                if '\n' in self.buffer:
+                    enqueue_telegram_message(self.buffer.strip())
+                    self.buffer = ""
+            else:
+                sys.__stdout__.write("El widget de texto no existe\n")
+        except Exception as e:
+            sys.__stdout__.write(f"Error al escribir en el widget de texto: {e}\n")
 
     def flush(self):
         if self.buffer:
             enqueue_telegram_message(self.buffer.strip())
             self.buffer = ""
+
+
+    def flush(self):
+        if self.buffer:
+            enqueue_telegram_message(self.buffer.strip())
+            self.buffer = ""
+
 
 
 def create_telegram_console(root):
@@ -59,3 +71,4 @@ def create_telegram_console(root):
     console_text = tk.Text(console_frame, bg='black', fg='white', wrap='word')
     console_text.pack(fill=tk.BOTH, expand=True)
     sys.stdout = TelegramConsoleRedirector(console_text)
+    return console_text  # Devuelve el widget de texto creado

@@ -1,94 +1,117 @@
+import pyautogui
 import sys
 from pathlib import Path
-import time
-import pyautogui
-pyautogui.FAILSAFE = False
+import concurrent.futures
 
-ANOTHER_SESSION_BUTTON_PATH = "Images/Errors"
-GLOBAL_PATH = "Images/Global"
-HOME_PATH = "Images/Home"
-MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
+ERRORS_PATH = "Images/Errors"
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components.LoadImages import load_images_from_path
-from Components._GlobalOpenValidateJoin import open_validate_join
 
-another_session_button_imgs = load_images_from_path(ANOTHER_SESSION_BUTTON_PATH, "another_session_button_")
-loading_game_imgs = load_images_from_path(GLOBAL_PATH, "loading_game_")
-leave_home_msg_imgs = load_images_from_path(HOME_PATH, "leave_home_msg_")
-EventNoRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventNoRunning_")
+wifi_error_imgs = load_images_from_path(ERRORS_PATH, "wifi_error_")
+wifi_error_button_imgs = load_images_from_path(ERRORS_PATH, "wifi_error_button_")
+casa_vulnerable_imgs = load_images_from_path(ERRORS_PATH, "casa_vulnerable_")
+atacando_casa_reload_button_imgs = load_images_from_path(ERRORS_PATH, "atacando_casa_reload_button_")
+another_sessions_imgs = load_images_from_path(ERRORS_PATH, "another_sessions_button_")
+afk_imgs = load_images_from_path(ERRORS_PATH, "afk_button_")
 
-def open_event():
-    time.sleep(1)
-    pyautogui.click(1096, 180)
-    return True
+left = 248
+top = 100
+right = 1122
+bottom = 642
 
-def validate_open_event():
-    found = False
-    count = 0
-    while not found and count < 10:
-        for _, image_path in EventNoRunning_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
-            count += 1
-            found = True
+width = right - left
+height = bottom - top
+
+region = (left, top, width, height)
+
+
+def resolve_wifi_error():
+    for _, image_path in wifi_error_button_imgs.items():
+        location = pyautogui.locateOnScreen(
+            image_path, confidence=0.95, region=region)
+        if location:
+            center_x, center_y = pyautogui.center(location)
+            pyautogui.click(center_x, center_y)
+            return True
+    return False
+
+
+def resolve_casa_vulnerable_error():
+    for _, image_path in casa_vulnerable_imgs.items():
+        location = pyautogui.locateOnScreen(
+            image_path, confidence=0.95, region=region)
+        if location:
+            center_x, center_y = pyautogui.center(location)
+            pyautogui.click(center_x, center_y)
+            return True
+    return False
+
+
+def resolve_atacando_casa_error():
+    for _, image_path in atacando_casa_reload_button_imgs.items():
+        location = pyautogui.locateOnScreen(
+            image_path, confidence=0.95, region=region)
+        if location:
+            center_x, center_y = pyautogui.center(location)
+            pyautogui.click(center_x, center_y)
+            return True
+    return False
+
+
+def resolve_another_sessions_error():
+    for _, image_path in another_sessions_imgs.items():
+        location = pyautogui.locateOnScreen(
+            image_path, confidence=0.95, region=region)
+        if location:
+            center_x, center_y = pyautogui.center(location)
+            pyautogui.click(center_x, center_y)
+            return True
+    return False
+
+
+def resolve_afk_error():
+    for _, image_path in afk_imgs.items():
+        location = pyautogui.locateOnScreen(
+            image_path, confidence=0.95, region=region)
+        if location:
+            center_x, center_y = pyautogui.center(location)
+            pyautogui.click(center_x, center_y)
+            return True
+    return False
+
+
+error_images_functions = [
+    (wifi_error_imgs, resolve_wifi_error),
+    (casa_vulnerable_imgs, resolve_casa_vulnerable_error),
+    (atacando_casa_reload_button_imgs, resolve_atacando_casa_error),
+    (another_sessions_imgs, resolve_another_sessions_error),
+    (afk_imgs, resolve_afk_error),
+]
+
+
+def locate_and_resolve(images, resolve_function):
+    for _ in range(10):
+        for _, image_path in images.items():
+            location = pyautogui.locateOnScreen(
+                image_path, confidence=0.95, region=region)
             if location:
-                return found
-    print("No se logró validar si el evento Manana Mimosa ha abierto.")
-    return found
-
-def reload_game_another_session(root):
-    count = 0
-    while count < 20:
-        for _, image_path in another_session_button_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
-            count += 1
-            if location:
-                center_x, center_y = pyautogui.center(location)
-                pyautogui.click(center_x, center_y)
-                count=21
-                break
-            elif (count==19):
-                root.destroy()
-    time.sleep(5)
-    count = 0
-    failCount = 0
-    while count < 25 and failCount < 200:
-        for _, image_path in loading_game_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=0.9)
-            if location:
-                time.sleep(8)
-                failCount += 1
-            else:
-                count += 1
-    if(count > 24):
-        time.sleep(10)
-        count = 0
-        while count == 0:
-            pyautogui.press('esc')
-            time.sleep(2.5)
-            for _, image_path in leave_home_msg_imgs.items():
-                location = pyautogui.locateOnScreen(image_path, confidence=0.9)
-                if location:
-                    pyautogui.press('esc')
-                    count = 1
-                    time.sleep(1.5)
-                    break
-        for _, image_path2 in leave_home_msg_imgs.items():
-            location2 = pyautogui.locateOnScreen(image_path2, confidence=0.9)
-            if location2:
-                pyautogui.press('esc')
-                count = 1
-                time.sleep(1)
-                break
-        print("El juego logró cargar correctamente, validando pantalla.")
-        time.sleep(2)
-    elif(failCount > 199):
-        print("El juego NO logró cargar correctamente.")
-        time.sleep(5)
-        root.destroy()
-    open_validate_join(True)
+                resolve_function()
+                print("BIEN 2")
+                return True
+    print("NADA 2")
+    return False
 
 
-reload_game_another_session(False)
-open_event()
-validate_open_event()
+def main_are_there_errors():
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        future_to_error = {executor.submit(locate_and_resolve, images, resolve_function): (
+            images, resolve_function) for images, resolve_function in error_images_functions}
+        for future in concurrent.futures.as_completed(future_to_error):
+            if future.result():
+                print("BIEN 1")
+                return True
+    print("NADA 1")
+    return False
+
+main_are_there_errors()

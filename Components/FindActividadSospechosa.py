@@ -1,16 +1,16 @@
-import os
 import pyautogui
 import pygame
 import time
+import sys
+from pathlib import Path
+pyautogui.FAILSAFE = False
 
 ACTIVIDAD_SOSPECHOSA_PATH = "Images/Errors"
 
-actividad_sospechosa_imgs = {
-    f"img{index+1}": os.path.join(ACTIVIDAD_SOSPECHOSA_PATH, file)
-    for index, file in enumerate(os.listdir(ACTIVIDAD_SOSPECHOSA_PATH))
-    if file.startswith("actividad_sospechosa_") and file.endswith(".png")
-}
+sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
+from Components.LoadImages import load_images_from_path
 
+actividad_sospechosa_imgs = load_images_from_path(ACTIVIDAD_SOSPECHOSA_PATH, "actividad_sospechosa_")
 
 pygame.mixer.init()
 

@@ -25,10 +25,10 @@ def reload_game_another_session(root):
             if location:
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
-                count=21
+                count = 21
                 break
-            elif (count==19):
-                root.destroy()
+            elif count == 19:
+                return False
     time.sleep(5)
     count = 0
     failCount = 0
@@ -40,7 +40,7 @@ def reload_game_another_session(root):
                 failCount += 1
             else:
                 count += 1
-    if(count > 24):
+    if count > 24:
         time.sleep(10)
         count = 0
         while count == 0:
@@ -62,8 +62,9 @@ def reload_game_another_session(root):
                 break
         print("El juego logró cargar correctamente, validando pantalla.")
         time.sleep(2)
-    elif(failCount > 199):
+    elif failCount > 199:
         print("El juego NO logró cargar correctamente.")
         time.sleep(5)
-        root.destroy()
+        return False
     open_validate_join(True)
+    return True
