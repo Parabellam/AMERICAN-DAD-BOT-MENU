@@ -211,7 +211,8 @@ def find_state():
                 found = True
                 return "disableForAttack"
     print("No se ha conseguido encontrar el estado")
-    return "No"
+    time.sleep(1)
+    return "disableForAttack"
 
 
 def mapear_info_player(reader):
@@ -262,7 +263,7 @@ def find_leave_fight_button():
     return found
 
 
-def start_round(isThereRewards, root):
+def start_round(isThereRewards):
     errorCount = 0
     found = False
     count = 0
@@ -285,17 +286,16 @@ def start_round(isThereRewards, root):
                     time.sleep(1)
                     if (count > 200):
                         print(f"No se ha encontrado el texto Seleccionar al siguiente oponente. Error count hasta 50: {errorCount}")
-                        time.sleep(1)
-                        errorCount += 1
+                        time.sleep(5)
+                        errorCount += 5
                         if(errorCount > 50):
-                            print("Tienes 50 segundos para entrar al juego.")
-                            time.sleep(50)
-                            reload_game_another_session(root)
-                            open_event()
-                            validate_open_event()
-                            found = True
-                        else:
-                            found = False
+                            print("Tienes 1 minuto para entrar al juego.")
+                            time.sleep(30)
+                            print("Tienes 30 segundos para entrar al juego.")
+                            time.sleep(25)
+                            print("Tienes 5 segundos para entrar al juego.")
+                            time.sleep(5)
+                            return "Error"
     time.sleep(2)
     return found
 
@@ -459,20 +459,27 @@ def leave_tournament():
 
 
 def mapeo(reader):
+    count = 0
     while True:
+        count += 1
         # Verifica si todos los elementos menos uno están mapeados
         unmapped_count = sum(
             1 for player in info_players if not player["isMaped"])
         if unmapped_count == 1:
             break
-
-        if main_are_there_errors():
-            return "Error"
+        
+        if(count > 12):
+            if main_are_there_errors():
+                return "Error"
+        else:
+            time.sleep(0.5)
         position, power, state = mapear_info_player(reader)
-        if position <= 15:
+        if position <= 15 and (state == "bot" or state == "top" or state == "disableForAttack"):
             info_players[position - 1]["power"] = power
             info_players[position - 1]["reward"] = state
             info_players[position - 1]["isMaped"] = True
+        else:
+            continue
         skip_player()
 
     # Asigna los valores específicos al primer item no mapeado
@@ -502,7 +509,7 @@ def miss_click():
     pyautogui.click(165, 194)
 
 
-def start_tournament_flow(reader, isThereRewards, root):
+def start_tournament_flow(reader, isThereRewards):
     isStartRound = False
     while True:
         isOpen = open_info_players()
@@ -527,8 +534,8 @@ def start_tournament_flow(reader, isThereRewards, root):
         if (respR1 == True or print("No hay respR1")):
             isReset = reset_info_players()
             if (isReset == True or print("No hay isReset")):
-                isStartRound = start_round(isThereRewards, root)
-                if (isStartRound == True or print("No hay isStartRound")):
+                isStartRound = start_round(isThereRewards)
+                if (isStartRound == True):
                     isStartRound = False
                     miss_click()
                     isOpen = open_info_players()
@@ -546,8 +553,8 @@ def start_tournament_flow(reader, isThereRewards, root):
                         if (respR2 == True):
                             isReset = reset_info_players()
                             if (isReset == True or print("No hay isReset")):
-                                isStartRound = start_round(isThereRewards, root)
-                                if (isStartRound == True or print("No hay isStartRound")):
+                                isStartRound = start_round(isThereRewards)
+                                if (isStartRound == True):
                                     isStartRound = False
                                     miss_click()
                                     isOpen = open_info_players()
@@ -565,8 +572,8 @@ def start_tournament_flow(reader, isThereRewards, root):
                                         if (respR3 == True):
                                             isReset = reset_info_players()
                                             if (isReset == True or print("No hay isReset")):
-                                                isStartRound = start_round(isThereRewards, root)
-                                                if (isStartRound == True or print("No hay isStartRound")):
+                                                isStartRound = start_round(isThereRewards)
+                                                if (isStartRound == True):
                                                     isStartRound = False
                                                     miss_click()
                                                     isOpen = open_info_players()
@@ -585,8 +592,8 @@ def start_tournament_flow(reader, isThereRewards, root):
                                                         if (respR4 == True):
                                                             isReset = reset_info_players()
                                                             if (isReset == True or print("No hay isReset")):
-                                                                isStartRound = start_round(False, root)
-                                                                if (isStartRound == True or print("No hay isStartRound")):
+                                                                isStartRound = start_round(False)
+                                                                if (isStartRound == True):
                                                                     isStartRound = False
                                                                     miss_click()
                                                                     isOpen = open_info_players()
@@ -615,14 +622,22 @@ def start_tournament_flow(reader, isThereRewards, root):
                                                                         else:
                                                                             print(
                                                                                 "Error al terminar el round 5.")
+                                                                elif(isStartRound == "Error"):
+                                                                    return "Error"
                                                         else:
                                                             print(
                                                                 "Error al terminar el round 4.")
+                                                elif(isStartRound == "Error"):
+                                                    return "Error"
                                         else:
                                             print(
                                                 "Error al terminar el round 3.")
+                                elif(isStartRound == "Error"):
+                                    return "Error"
                         else:
                             print("Error al terminar el round 2.")
+                elif(isStartRound == "Error"):
+                    return "Error"
         else:
             print("Error al terminar el round 1.")
     else:
@@ -630,7 +645,7 @@ def start_tournament_flow(reader, isThereRewards, root):
     return False
 
 
-def confirm_and_fight(reader, isThereRewards, root):
+def confirm_and_fight(reader, isThereRewards):
     reset_info_players()
     ConfirmJoinTournament_imgs = {
         "img1": os.path.join(MANANAMIMOSAEVENT_PATH, "ConfirmJoinTournament_1.png"),
@@ -656,7 +671,7 @@ def confirm_and_fight(reader, isThereRewards, root):
     if (found == True):
         isStart = wait_match()
         if (isStart == True):
-            tournamentResp = start_tournament_flow(reader, isThereRewards, root)
+            tournamentResp = start_tournament_flow(reader, isThereRewards)
             if (tournamentResp == True or tournamentResp == "Error"):
                 return tournamentResp
             else:

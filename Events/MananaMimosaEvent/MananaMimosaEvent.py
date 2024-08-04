@@ -28,6 +28,7 @@ from Components.MananaMimosa.IsEventRunning import isEventRuning
 from Components.isErrorMessage import main_are_there_errors
 
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
+MANANAMIMOSAEVENT_FIGHT_PATH = "Images/MananaMimosaEvent/Fight"
 HAPPINESS_PATH = "Images/Happiness"
 GLOBAL_PATH = "Images/Global"
 HOME_PATH = "Images/Home"
@@ -43,6 +44,7 @@ loading_game_imgs = load_images_from_path(GLOBAL_PATH, "loading_game_")
 isOut_imgs = load_images_from_path(GLOBAL_PATH, "isOut_")
 home_imgs = load_images_from_path(HOME_PATH, "home_")
 another_session_button_imgs = load_images_from_path(ANOTHER_SESSION_BUTTON_PATH, "another_session_button_")
+finish_event_imgs = load_images_from_path(MANANAMIMOSAEVENT_FIGHT_PATH, "FinishEvent_")
 
 happiness_imgs = {
     "img1": os.path.join(HAPPINESS_PATH, "1.png"),
@@ -201,11 +203,28 @@ def goHome():
     return False
 
 
-def reload_game(root):
-    reload_game_another_session(root)
+def reload_game():
+    reload_game_another_session()
 
+def close_event_button():
+    found = False
+    count = 0
+    while not found and count < 50:
+        for _, image_path in finish_event_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            count += 1
+            if location:
+                time.sleep(1)
+                center_x, center_y = pyautogui.center(location)
+                pyautogui.click(center_x, center_y)
+                found=True
+                time.sleep(4)
+                return found
+            else:
+                time.sleep(5)
+    return found
 
-def function_join_mananamimosa(root, isThereRewards, isNightMode):
+def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode):
     global lastBattleFood, lBFoodPosition
     resp1=open_validate_join()
     if(resp1.get("state")==True):
@@ -231,7 +250,7 @@ def function_join_mananamimosa(root, isThereRewards, isNightMode):
                 respActividadSospechosa = isActividadSospechosa()
                 if(respActividadSospechosa == True):
                     time.sleep(160)
-                    reload_game(root)
+                    reload_game()
                     open_event()
                     validate_open_event()
                 if main_are_there_errors():
@@ -282,6 +301,8 @@ def function_join_mananamimosa(root, isThereRewards, isNightMode):
                     pyautogui.doubleClick(652, 474)
                     time.sleep(1)
                     pyautogui.doubleClick(601, 467)
+                    time.sleep(1)
+                    pyautogui.doubleClick(580, 470)
                     main_get_home_screen()
                     respCloseButton = close_button()
                     if respCloseButton == True:
@@ -301,7 +322,7 @@ def function_join_mananamimosa(root, isThereRewards, isNightMode):
                         time.sleep(2)
                         print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
                         time.sleep(116)
-                        reload_game(root)
+                        reload_game()
                     main_are_there_errors()
                     open_validate_join(True)
                     open_event()
@@ -319,12 +340,20 @@ def function_join_mananamimosa(root, isThereRewards, isNightMode):
                 average = max_food * 0.5
                 respA = False
                 respB = False
-                if current_food > average:
+                if(isSaveMode and current_food < 30000):
+                    time.sleep(3600)
+                    if main_are_there_errors():
+                        open_validate_join(True)
+                        open_event()
+                        validateEvent = validate_open_event()
+                        if(validateEvent == "Event running"):
+                            close_event_button()
+                if current_food > average or isSaveMode:
                     respA = use_food_option()
-                    time.sleep(1.2)
+                    time.sleep(1.1)
                 else:
                     respB = use_tickets_option()
-                    time.sleep(1.2)
+                    time.sleep(1.1)
                 if main_are_there_errors():
                     print("4")
                     open_validate_join(True)
@@ -334,8 +363,10 @@ def function_join_mananamimosa(root, isThereRewards, isNightMode):
                 if respA == True or respB == True:
                     isParticipantPressed = participar_button()
                     if isParticipantPressed == True:
-                        isFightDone = confirm_and_fight(resp1.get("reader"), isThereRewards, root)
+                        isFightDone = confirm_and_fight(resp1.get("reader"), isThereRewards)
                         if isFightDone == False or isFightDone == "Error":
+                            main_are_there_errors()
+                            time.sleep(10)
                             reload_game()
                             main_get_home_screen()
                             open_validate_join(True)
