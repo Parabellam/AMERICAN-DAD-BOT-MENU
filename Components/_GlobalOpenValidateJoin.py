@@ -23,15 +23,15 @@ def open_validate_join(isReloadGame = False):
     if(isReloadGame == True or resp1):
         resp2 = detect_screen()
     else:
-        return "Error al abrir Bluestacks"
+        return {"state":"Error al abrir Bluestacks"}
 
     if(resp2.get("state")=="outMainMap"):
         resp3 = open_main_map(resp2.get("location"))
         if(resp3):
-            return {"state":True, "reader":reader}
+            return {"state":"True", "reader":reader}
         else:
-            return "Error al abrir el mapa principal"
+            return {"state":"Error al abrir el mapa principal"}
     if(resp2.get("state")=="inMainMap"):
-        return {"state":True, "reader":reader}
+        return {"state":"True", "reader":reader}
     else:
-        return "Por favor ubicar el juego en las pantallas recomendadas por la aplicación."
+        return {"state":"Por favor ubicar el juego en las pantallas recomendadas por la aplicación."}

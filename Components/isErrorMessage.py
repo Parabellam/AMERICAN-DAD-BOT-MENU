@@ -5,6 +5,7 @@ import concurrent.futures
 import time
 
 ERRORS_PATH = "Images/Errors"
+WINDOW_PATH = "Images/BlueStacks"
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components.LoadImages import load_images_from_path
@@ -16,6 +17,8 @@ casa_vulnerable_imgs = load_images_from_path(ERRORS_PATH, "casa_vulnerable_")
 atacando_casa_reload_button_imgs = load_images_from_path(ERRORS_PATH, "atacando_casa_reload_button_")
 another_sessions_imgs = load_images_from_path(ERRORS_PATH, "another_sessions_button_")
 afk_imgs = load_images_from_path(ERRORS_PATH, "afk_button_")
+BS_window_imgs = load_images_from_path(WINDOW_PATH, "BS_window_")
+open_app_imgs = load_images_from_path(WINDOW_PATH, "open_app_")
 
 left = 248
 top = 100
@@ -27,8 +30,46 @@ height = bottom - top
 
 region = (left, top, width, height)
 
+def open_app():
+    count = 0
+    while count < 20:
+        for _, image_path in open_app_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.9)
+            count += 1
+            if location:
+                time.sleep(2)
+                center_x, center_y = pyautogui.center(location)
+                pyautogui.click(center_x, center_y)
+                open_app()
+                return True
+    print("No se ha encontrado la app")
+    return False
+
+def close_app():
+    count = 0
+    while count < 20:
+        for _, image_path in BS_window_imgs.items():
+            location = pyautogui.locateOnScreen(image_path, confidence=0.9)
+            count += 1
+            if location:
+                center_x, center_y = pyautogui.center(location)
+                pyautogui.click(center_x, center_y)
+                open_app()
+                return True
+    print("No se ha encontrado cerrar ventana")
+    return False
+
 def locate_and_click(image_path):
-    location = pyautogui.locateOnScreen(image_path, confidence=0.95, region=region)
+    location = pyautogui.locateOnScreen(image_path, confidence=0.9, region=region)
+    if location:
+        # center_x, center_y = pyautogui.center(location)
+        pyautogui.click(1346, 701)
+        close_app()
+        return True
+    return False
+
+def locate_and_click_2(image_path):
+    location = pyautogui.locateOnScreen(image_path, confidence=0.9, region=region)
     if location:
         center_x, center_y = pyautogui.center(location)
         pyautogui.click(center_x, center_y)
@@ -38,20 +79,22 @@ def locate_and_click(image_path):
 def resolve_wifi_error():
     for image_path in wifi_error_button_imgs.values():
         if locate_and_click(image_path):
-            time.sleep(15)
+            print("resolve_wifi_error")
+            time.sleep(30)
             main_get_home_screen()
             return True
     return False
 
 def resolve_casa_vulnerable_error():
     for image_path in casa_vulnerable_imgs.values():
-        locate_and_click(image_path)
+        locate_and_click_2(image_path)
     return False
 
 def resolve_atacando_casa_error():
     for image_path in atacando_casa_reload_button_imgs.values():
         if locate_and_click(image_path):
-            time.sleep(15)
+            print("resolve_atacando_casa_error")
+            time.sleep(30)
             main_get_home_screen()
             return True
     return False
@@ -59,7 +102,8 @@ def resolve_atacando_casa_error():
 def resolve_another_sessions_error():
     for image_path in another_sessions_imgs.values():
         if locate_and_click(image_path):
-            time.sleep(15)
+            print("resolve_another_sessions_error")
+            time.sleep(30)
             main_get_home_screen()
             return True
     return False
@@ -67,7 +111,8 @@ def resolve_another_sessions_error():
 def resolve_afk_error():
     for image_path in afk_imgs.values():
         if locate_and_click(image_path):
-            time.sleep(15)
+            print("resolve_afk_error")
+            time.sleep(30)
             main_get_home_screen()
             return True
     return False
@@ -84,6 +129,7 @@ def locate_and_resolve(images, resolve_function):
     for _ in range(3):
         for image_path in images.values():
             if locate_and_click(image_path):
+                print("locate_and_resolve")
                 return resolve_function()
     return False
 

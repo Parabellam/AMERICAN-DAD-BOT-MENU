@@ -11,7 +11,7 @@ from Components.LoadImages import load_images_from_path
 
 leave_home_msg_imgs = load_images_from_path(HOME_PATH, "leave_home_msg_")
 
-def get_home(times, delay=0.5):
+def get_home(times, delay=1):
     for _ in range(times):
         pyautogui.press('esc')
         time.sleep(delay)

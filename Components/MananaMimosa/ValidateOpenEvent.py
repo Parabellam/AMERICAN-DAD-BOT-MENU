@@ -9,6 +9,8 @@ from Components.LoadImages import load_images_from_path
 
 MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
 
+CONFIDENCE_LEVEL_TWO = 0.95
+
 EventNoRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventNoRunning_")
 EventRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventRunning_")
 
@@ -18,7 +20,7 @@ def validate_open_event():
     time.sleep(2)
     while not found and count < 10:
         for _, image_path in EventNoRunning_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=0.95)
+            location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL_TWO)
             count += 1
             found = True
             if location:
@@ -28,11 +30,12 @@ def validate_open_event():
     count = 0
     while not found and count < 10:
         for _, image_path2 in EventRunning_imgs.items():
-            location2 = pyautogui.locateOnScreen(image_path2, confidence=0.95)
+            location2 = pyautogui.locateOnScreen(image_path2, confidence=CONFIDENCE_LEVEL_TWO)
             count += 1
             found = True
             if location2:
                 return "Event running"
+    print("Error fatal 2")
     return found
 
 

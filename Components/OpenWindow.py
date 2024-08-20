@@ -1,13 +1,33 @@
 import pygetwindow as gw
+import time
 
 
 def open():
-    windows = gw.getWindowsWithTitle('BlueStacks')
-    if windows:
-        bluestacks_window = windows[0]
-        bluestacks_window.activate()
-        bluestacks_window.maximize()
-    return True
+    try:
+        windows = gw.getWindowsWithTitle('BlueStacks')
+        if windows:
+            bluestacks_window = windows[0]
+
+            # Verificar si la ventana está minimizada
+            if bluestacks_window.isMinimized:
+                bluestacks_window.restore()
+
+            # Activar la ventana
+            bluestacks_window.activate()
+
+            # Maximizar la ventana
+            # Pequeña pausa para asegurarse de que la ventana se activa antes de maximizarla
+            time.sleep(0.1)
+            bluestacks_window.maximize()
+
+            return True
+        else:
+            print("La ventana de BlueStacks no se encontró.")
+            return False
+
+    except gw.PyGetWindowException as e:
+        print(f"Error al intentar manipular la ventana de BlueStacks: {e}")
+        return False
 
 
 def open_bluestacks_window():

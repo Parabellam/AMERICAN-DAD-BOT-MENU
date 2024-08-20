@@ -4,17 +4,37 @@ import tkinter as tk
 import sys
 import threading
 import queue
+from requests.exceptions import ConnectionError, Timeout
+import time
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 log_queue = queue.Queue()
 
+MAX_RETRIES = 100
+RETRY_DELAY = 5
 
 def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {'chat_id': TELEGRAM_CHAT_ID, 'text': message}
-    requests.post(url, data=payload)
+    
+    retries = 0
+    while retries < MAX_RETRIES:
+        try:
+            response = requests.post(url, data=payload, timeout=10)
+            response.raise_for_status()
+            break
+        except (ConnectionError, Timeout) as e:
+            retries += 1
+            print(f"Error de conexión: {e}. Reintentando ({retries}/{MAX_RETRIES})...")
+            if retries < MAX_RETRIES:
+                time.sleep(RETRY_DELAY * retries)
+            else:
+                print("No se pudo enviar el mensaje después de varios intentos.")
+        except Exception as e:
+            print(f"Error inesperado: {e}")
+            break
 
 
 def telegram_worker():
@@ -40,7 +60,7 @@ class TelegramConsoleRedirector:
 
     def write(self, message):
         try:
-            if self.text_widget.winfo_exists():  # Verifica si el widget existe
+            if self.text_widget.winfo_exists():
                 self.text_widget.insert(tk.END, message)
                 self.text_widget.see(tk.END)
                 self.buffer += message
@@ -71,4 +91,4 @@ def create_telegram_console(root):
     console_text = tk.Text(console_frame, bg='black', fg='white', wrap='word')
     console_text.pack(fill=tk.BOTH, expand=True)
     sys.stdout = TelegramConsoleRedirector(console_text)
-    return console_text  # Devuelve el widget de texto creado
+    return console_text

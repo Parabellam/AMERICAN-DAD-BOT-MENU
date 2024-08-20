@@ -17,6 +17,7 @@ loading_game_imgs = load_images_from_path(GLOBAL_PATH, "loading_game_")
 leave_home_msg_imgs = load_images_from_path(HOME_PATH, "leave_home_msg_")
 
 def reload_game_another_session():
+    print("Haciendo reload_game_another_session")
     count = 0
     while count < 20:
         for _, image_path in another_session_button_imgs.items():
