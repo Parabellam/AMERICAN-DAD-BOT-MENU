@@ -1,7 +1,7 @@
 import easyocr
 import sys
 from pathlib import Path
-import time
+from time import sleep
 
 reader = None
 
@@ -11,7 +11,7 @@ from Components.OpenWindow import open_bluestacks_window
 from Components.JoinMap import open_main_map
 
 def preload_easyocr():
-    time.sleep(1.5)
+    sleep(1.5)
     global reader
     reader = easyocr.Reader(['en'], gpu=False)
 
@@ -19,14 +19,16 @@ def open_validate_join(isReloadGame = False):
     if(isReloadGame==False):
         preload_easyocr()
         resp1 = open_bluestacks_window()
-        time.sleep(1.5)
+        sleep(1.5)
     if(isReloadGame == True or resp1):
+        print("Haciendo detect_screen:")
         resp2 = detect_screen()
     else:
         return {"state":"Error al abrir Bluestacks"}
 
     if(resp2.get("state")=="outMainMap"):
-        resp3 = open_main_map(resp2.get("location"))
+        print("Fuera del mapa, abriendo mapa")
+        resp3 = open_main_map()
         if(resp3):
             return {"state":"True", "reader":reader}
         else:
@@ -34,4 +36,5 @@ def open_validate_join(isReloadGame = False):
     if(resp2.get("state")=="inMainMap"):
         return {"state":"True", "reader":reader}
     else:
+        print("Por favor ubicar el juego:")
         return {"state":"Por favor ubicar el juego en las pantallas recomendadas por la aplicación."}

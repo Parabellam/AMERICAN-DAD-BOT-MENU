@@ -11,3 +11,5 @@ __pycache__/
 processed_image_position.png
 processed_image_power.png
 processed_image.png
+screenshot_not_found.png
+screenshot_found.png

@@ -1,4 +1,4 @@
-import time
+from time import sleep
 import pyautogui
 pyautogui.FAILSAFE = False
 
@@ -11,7 +11,7 @@ get_reward_button_imgs = load_images_from_path(OPENCLOSECHAT_PATH, "get_button_"
 def getButtons():
     found = False
     count = 0
-    time.sleep(1)
+    sleep(1)
     while not found and count < 10:
         for _, image_path in get_reward_button_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=0.85)
@@ -19,6 +19,6 @@ def getButtons():
             if location:
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
-                time.sleep(3)
+                sleep(3)
                 pyautogui.click(365, 687)
-                time.sleep(1)
+                sleep(1)

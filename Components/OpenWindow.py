@@ -1,5 +1,5 @@
 import pygetwindow as gw
-import time
+from time import sleep
 
 
 def open():
@@ -17,7 +17,7 @@ def open():
 
             # Maximizar la ventana
             # Pequeña pausa para asegurarse de que la ventana se activa antes de maximizarla
-            time.sleep(0.1)
+            sleep(0.1)
             bluestacks_window.maximize()
 
             return True

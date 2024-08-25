@@ -1,5 +1,6 @@
 # Solo cobrar fichas del chat
-import time
+from time import sleep
+from time import time
 import pyautogui
 import os
 
@@ -70,10 +71,10 @@ def chatEvent():
     pyautogui.click(98, 340)  # Abrir chat
     respIsChatOpen = isChatOpen()
     if (respIsChatOpen):
-        end_time = time.time() + 180
-        while time.time() < end_time:
+        end_time = time() + 180
+        while time() < end_time:
             get_fichas()
             close_ficha_img()
-            time.sleep(1)
+            sleep(1)
         return True
     return False

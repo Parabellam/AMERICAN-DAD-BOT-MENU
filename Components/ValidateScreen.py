@@ -10,6 +10,7 @@ map_imgs = {
     for index, file in enumerate(os.listdir(MAP_BUTTON_PATH))
     if file.startswith("map_btn_") and file.endswith(".png")
 }
+map_button_region = (20, 539, 238, 197)
 
 map_screen_imgs = {
     f"img{index+1}": os.path.join(MAP_SCREEN_PATH, file)

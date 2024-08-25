@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-import time
+from time import sleep
 import pyautogui
 pyautogui.FAILSAFE = False
 
@@ -12,7 +12,7 @@ MANANAMIMOSAEVENT_PATH = "Images/MananaMimosaEvent"
 EventNoRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventNoRunning_")
 
 def isEventRuning():
-    time.sleep(2)
+    sleep(2)
     found = False
     count = 0
     while not found and count < 10:

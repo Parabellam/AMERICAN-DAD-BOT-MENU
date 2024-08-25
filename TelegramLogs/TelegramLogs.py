@@ -5,7 +5,7 @@ import sys
 import threading
 import queue
 from requests.exceptions import ConnectionError, Timeout
-import time
+from time import sleep
 
 TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
@@ -29,7 +29,7 @@ def send_telegram_message(message):
             retries += 1
             print(f"Error de conexión: {e}. Reintentando ({retries}/{MAX_RETRIES})...")
             if retries < MAX_RETRIES:
-                time.sleep(RETRY_DELAY * retries)
+                sleep(RETRY_DELAY * retries)
             else:
                 print("No se pudo enviar el mensaje después de varios intentos.")
         except Exception as e:
@@ -60,15 +60,19 @@ class TelegramConsoleRedirector:
 
     def write(self, message):
         try:
+            # Escribe en el widget de texto de Tkinter
             if self.text_widget.winfo_exists():
                 self.text_widget.insert(tk.END, message)
                 self.text_widget.see(tk.END)
-                self.buffer += message
-                if '\n' in self.buffer:
-                    enqueue_telegram_message(self.buffer.strip())
-                    self.buffer = ""
-            else:
-                sys.__stdout__.write("El widget de texto no existe\n")
+                
+            # Encola el mensaje para enviar a Telegram
+            self.buffer += message
+            if '\n' in self.buffer:
+                enqueue_telegram_message(self.buffer.strip())
+                self.buffer = ""
+            
+            # También imprime en la consola estándar
+            sys.__stdout__.write(message)
         except Exception as e:
             sys.__stdout__.write(f"Error al escribir en el widget de texto: {e}\n")
 
@@ -76,12 +80,7 @@ class TelegramConsoleRedirector:
         if self.buffer:
             enqueue_telegram_message(self.buffer.strip())
             self.buffer = ""
-
-
-    def flush(self):
-        if self.buffer:
-            enqueue_telegram_message(self.buffer.strip())
-            self.buffer = ""
+            sys.__stdout__.flush()
 
 
 

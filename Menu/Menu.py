@@ -19,11 +19,6 @@ def main_window():
     root.geometry("500x600")
     return root
 
-# def add_description(frame):
-#     description = tk.Label(frame, text="Antes de elegir alguna función, su pantalla debe de estar ubicada en la casa o en el mapa principal del juego.",
-#                            wraplength=450, justify='center', font=('Helvetica', 12, 'italic'))
-#     description.grid(row=0, column=0, columnspan=2, padx=10, pady=10)
-
 def format_number(entry):
     value = entry.get().replace('.', '')
     if value.isdigit():
@@ -62,13 +57,6 @@ def action_buttons(frame, isThereRewards, isNightMode, isSaveMode):
     button1.grid(row=5, column=0, padx=10, pady=10)
     ToolTip(button1, "Para este evento se consumirá la comida si esta es mayor al 50% de tu capacidad. Por el contrario, usará los tickets hasta acabarlos y finalizará. Próximamente se podrá configurar este 50% mencionado.", width=300)
     
-    # button2 = tk.Button(frame, text="Guerra Familialandia", command=lambda: function_join_mananamimosa(), width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
-    # button2.grid(row=5, column=1, padx=10, pady=10)
-    
-    # button3 = tk.Button(frame, text="General", command=lambda: function_join_mananamimosa(), width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
-    # button3.grid(row=6, column=0, padx=10, pady=10)
-    # ToolTip(button3, "Hacer todas las actividades diarias.", width=300)
-    
     return [button1]
 
 def finish():
@@ -93,7 +81,6 @@ def check_food_capacity(entry, buttons):
 root = main_window()
 frame = tk.Frame(root)
 frame.pack(pady=20)
-# add_description(frame)
 food_capacity_entry = add_food_capacity_input(frame)
 isThereRewards = add_checkbox(frame)
 isNightMode = add_night_checkbox(frame)
