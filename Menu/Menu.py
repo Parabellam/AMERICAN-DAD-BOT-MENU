@@ -1,7 +1,7 @@
 import tkinter as tk
 import sys
 from pathlib import Path
-
+import threading
 
 sys.path.append(str(Path(__file__).resolve().parent.parent / 'Events' / 'MananaMimosaEvent'))
 sys.path.append(str(Path(__file__).resolve().parent.parent / 'ToolTip'))
@@ -12,6 +12,9 @@ from MananaMimosaEvent import function_join_mananamimosa
 from ToolTip import ToolTip 
 from ManageJSONFile import save_to_json, get_value_from_json
 from TelegramLogs import create_telegram_console
+
+# Variable global para la señal de interrupción
+stop_event = threading.Event()
 
 def main_window():
     root = tk.Tk()
@@ -53,14 +56,19 @@ def add_save_checkbox(frame):
     return save_checkbox_var
 
 def action_buttons(frame, isThereRewards, isNightMode, isSaveMode):
-    button1 = tk.Button(frame, text="Mañana Mimosa", command=lambda: function_join_mananamimosa(isThereRewards.get(), isNightMode.get(), isSaveMode.get()), width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
+    button1 = tk.Button(frame, text="Mañana Mimosa", command=lambda: threading.Thread(target=function_wrapper, args=(isThereRewards.get(), isNightMode.get(), isSaveMode.get())).start(), width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
     button1.grid(row=5, column=0, padx=10, pady=10)
     ToolTip(button1, "Para este evento se consumirá la comida si esta es mayor al 50% de tu capacidad. Por el contrario, usará los tickets hasta acabarlos y finalizará. Próximamente se podrá configurar este 50% mencionado.", width=300)
     
     return [button1]
 
+def function_wrapper(isThereRewards, isNightMode, isSaveMode):
+    # Asegúrate de que function_join_mananamimosa revise stop_event periódicamente.
+    function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_event)
+
 def finish():
     print("Cerrando")
+    stop_event.set()  # Envía la señal de detenerse a todos los hilos
     root.destroy()
 
 def close_app_button(frame):
@@ -97,5 +105,9 @@ else:
 
 close_app_button(frame)
 console_text = create_telegram_console(root)
+
+# Cerrar la aplicación después de 4 horas (4 horas * 60 minutos * 60 segundos * 1000 milisegundos)
+# root.after(4 * 60 * 60 * 1000, finish)
+
 print("Aplicación iniciada")
 root.mainloop()

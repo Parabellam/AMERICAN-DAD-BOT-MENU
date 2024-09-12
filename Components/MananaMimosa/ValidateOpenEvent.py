@@ -26,6 +26,7 @@ def miss_click():
 def is_finish_event():
     for _, image_path in FinishEvent_imgs.items():
         location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL_TWO, region=FinishEvent_region)
+        print("is_finish_event")
         if main_are_there_errors():
                 return "Error"
         if location:
@@ -80,7 +81,6 @@ def validate_open_event():
 
 
 def open_event():
-    print("Haciendo open_event:")
     sleep(1)
     pyautogui.click(1096, 180)
     return True

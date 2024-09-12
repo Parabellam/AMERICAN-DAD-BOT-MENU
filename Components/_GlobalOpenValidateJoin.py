@@ -21,13 +21,11 @@ def open_validate_join(isReloadGame = False):
         resp1 = open_bluestacks_window()
         sleep(1.5)
     if(isReloadGame == True or resp1):
-        print("Haciendo detect_screen:")
         resp2 = detect_screen()
     else:
         return {"state":"Error al abrir Bluestacks"}
 
     if(resp2.get("state")=="outMainMap"):
-        print("Fuera del mapa, abriendo mapa")
         resp3 = open_main_map()
         if(resp3):
             return {"state":"True", "reader":reader}

@@ -17,6 +17,7 @@ max_attempts = 10
 CONFIDENCE_LEVEL = 0.9
 CONFIDENCE_LEVEL_TWO = 0.95
 SHORT_SLEEP = 1
+SHORT_SHORT_SLEEP = 0.5
 SelectPlayer_region = (196, 238, 948, 343)
 DisablePlayer_region = (208, 563, 222, 99)
 LeaveFightButton_region = (531, 611, 257, 110)
@@ -58,6 +59,7 @@ Join_Chat_imgs = load_images_from_path(OPENCLOSECHAT_PATH, "join_chat_")
 get_button_imgs = load_images_from_path(GETBUTTONSCHAT_PATH, "get_button_")
 leave_button_imgs = load_images_from_path(OPENCLOSECHAT_PATH, "leave_chat_")
 EventNoRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventNoRunning_")
+EventRunning_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "EventRunning_")
 
 initial_state = [
     {"position": i, "power": 0, "reward": "bot", "isMaped": False}
@@ -76,17 +78,6 @@ position_region = (973, 518, 1105 - 973, 556 - 518)
 power_region = (698, 331, 900 - 698, 366 - 331)
 state_region = (209, 564, 440 - 209, 657 - 564)
 
-def locate_image_with_opencv(haystack_img, needle_img, threshold=0.8):
-    needle_w = needle_img.shape[1]
-    needle_h = needle_img.shape[0]
-    result = cv2.matchTemplate(haystack_img, needle_img, cv2.TM_CCOEFF_NORMED)
-    locations = np.where(result >= threshold)
-    locations = list(zip(*locations[::-1]))
-    
-    if locations:
-        return locations[0]  # Retorna la primera ubicación encontrada
-    return None
-
 def wait_match():
     count = 0
     failCount = 0
@@ -99,7 +90,17 @@ def wait_match():
             else:
                 count += 1
     if (count > 8):
-        return True
+        count = 0
+        failCount = 0
+        while count < max_attempts:
+            for _, image_path in EventRunning_imgs.items():
+                location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL_TWO)
+                if location:
+                    print("El torneo ha comenzado...")
+                    return True
+                else:
+                    print("El torneo ha comenzado pero no se encontró EventRunning_imgs")
+                    return False
     if (failCount > 38):
         print("El torneo no ha logrado comenzar con éxito.")
         return False
@@ -117,115 +118,69 @@ def open_info_players():
                 found = True
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
-                sleep(0.5)
+                sleep(SHORT_SHORT_SLEEP)
                 return found
             else:
                 sleep(SHORT_SLEEP)
     return found
 
 
-def preprocess_image_for_position(img):
+def preprocess_image(img, pos):
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    _, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
-
+    if pos == 1:
+        _, thresh = cv2.threshold(gray, 50, 255, cv2.THRESH_BINARY_INV)
+    else:
+        _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
+        kernel = np.ones((1, 1), np.uint8)
+        thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=1)
     return thresh
-
-
-def preprocess_image_for_power(img):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-    _, thresh = cv2.threshold(gray, 150, 255, cv2.THRESH_BINARY_INV)
-
-    kernel = np.ones((1, 1), np.uint8)
-    img_dilated = cv2.dilate(thresh, kernel, iterations=1)
-    img_eroded = cv2.erode(img_dilated, kernel, iterations=1)
-
-    return img_eroded
-
 
 def capture_and_read_text(region, reader, allowlist, pos):
     img = pyautogui.screenshot(region=region)
-    if pos == 1:
-        processed_img = preprocess_image_for_position(
-            cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR))
-    else:
-        processed_img = preprocess_image_for_power(
-            cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR))
-
+    processed_img = preprocess_image(cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR), pos)
     result = reader.readtext(processed_img, allowlist=allowlist)
-    if pos == 1:
-        for text in result:
-            if text[1]:
-                digits = ''.join(filter(str.isdigit, text[1]))
-                if digits:
-                    number = int(digits)
-                    return number
+    
     for text in result:
-        if text[1].isdigit():
-            number = int(text[1])
-            return number
+        if pos == 1:
+            digits = ''.join(filter(str.isdigit, text[1]))
+            if digits:
+                return int(digits)
+        elif text[1].isdigit():
+            return int(text[1])
     return None
-
 
 def find_position(reader):
     position = capture_and_read_text(
-        position_region, reader, allowlist='Pposición: 0123456789', pos=1)
-    if position == None:
-        return 15
-    return position
+        position_region, reader, allowlist='Posición: 0123456789', pos=1)
+    return position if position is not None else 15
 
 def find_power(reader):
     power = capture_and_read_text(
         power_region, reader, allowlist='0123456789', pos=0)
-    if power == None:
-        return 50000000
-    return power
+    return power if power is not None and power > 10000 else 80000000
 
 def find_state():
-    found = False
-    count = 0
-    while not found and count < 5:
-        for _, image_path in PlayerUnderMe_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, region=(state_region), confidence=CONFIDENCE_LEVEL_TWO)
-            count += 1
-            if location:
-                found = True
-                return "bot"
-    count = 0
-    while not found and count < 5:
-        for _, image_path in PlayerOverMe_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, region=(state_region), confidence=CONFIDENCE_LEVEL_TWO)
-            count += 1
-            if location:
-                found = True
-                return "top"
-    count = 0
-    while not found and count < 5:
-        for _, image_path in DisablePlayer_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL, region=DisablePlayer_region)
-            count += 1
-            if location:
-                found = True
-                return "disableForAttack"
+    attempts = 5
+    for _ in range(attempts):
+        for img_dict in [PlayerUnderMe_imgs, PlayerOverMe_imgs, DisablePlayer_imgs]:
+            for _, image_path in img_dict.items():
+                location = pyautogui.locateOnScreen(image_path, region=state_region, confidence=CONFIDENCE_LEVEL_TWO)
+                if location:
+                    return "bot" if img_dict == PlayerUnderMe_imgs else "top" if img_dict == PlayerOverMe_imgs else "disableForAttack"
+    
     print("No se ha conseguido encontrar el estado")
-    sleep(SHORT_SLEEP)
+    if main_are_there_errors():
+        return "Error"
     return "disableForAttack"
 
-
 def mapear_info_player(reader):
-    position = 0
-    power = 99999999
-    state = "disableForAttack"
     with concurrent.futures.ThreadPoolExecutor() as executor:
         state_future = executor.submit(find_state)
+        if state_future == "Error":
+            return "Error"
         position_future = executor.submit(find_position, reader)
         power_future = executor.submit(find_power, reader)
-        state = state_future.result()
-        position = position_future.result()
-        power = power_future.result()
-
-    return position, power, state
+        return position_future.result(), power_future.result(), state_future.result()
 
 
 def skip_player():
@@ -471,8 +426,10 @@ def mapeo(reader):
         if(count > 13):
             if main_are_there_errors():
                 return "Error"
-        sleep(0.5)
+        sleep(0.8)
         position, power, state = mapear_info_player(reader)
+        if state == "Error":
+            return "Error"
         if position <= 15 and (state == "bot" or state == "top" or state == "disableForAttack"):
             info_players[position - 1]["power"] = power
             info_players[position - 1]["reward"] = state
@@ -481,6 +438,7 @@ def mapeo(reader):
             continue
         skip_player()
     # Asigna valores cualquiera al item no mapeado (Mi pos)
+    # print(info_players)
     for player in info_players:
         if not player["isMaped"]:
             player["power"] = 99999999
@@ -502,7 +460,7 @@ def validate_open_info_players():
 
 def miss_click():
     pyautogui.click(165, 194)
-    sleep(0.5)
+    sleep(SHORT_SHORT_SLEEP)
     pyautogui.click(165, 194)
 
 
@@ -521,6 +479,7 @@ def am_i_out():
 
 
 def start_tournament_flow(reader, isThereRewards):
+    print("start_tournament_flow")
     isStartRound = False
     while True:
         isOpen = open_info_players()
@@ -650,6 +609,8 @@ def start_tournament_flow(reader, isThereRewards):
                                                                                         if main_are_there_errors():
                                                                                             print("Conectate, tienes 10 minutos para completar el evento 16")
                                                                                             sleep(600)
+                                                                            else:
+                                                                                print("FT 7")
                                                                         else:
                                                                             print(
                                                                                 "Error al terminar el round 5.")
@@ -672,6 +633,10 @@ def start_tournament_flow(reader, isThereRewards):
                                                                             print("Conectate, tienes 10 minutos para completar el evento 14")
                                                                             sleep(600)
                                                                     return isStartRound
+                                                                else:
+                                                                    print("FT 6")
+                                                            else:
+                                                                print("FT 5")
                                                         else:
                                                             print(
                                                                 "Error al terminar el round 4.")
@@ -683,6 +648,8 @@ def start_tournament_flow(reader, isThereRewards):
                                                                 if main_are_there_errors():
                                                                     print("Conectate, tienes 10 minutos para completar el evento 13")
                                                                     sleep(600)
+                                                    else:
+                                                        print("FT 4")
                                                 elif(isStartRound == "Error"):
                                                     print("isStartRound 3")
                                                     respActividadSospechosa = isActividadSospechosa()
@@ -694,6 +661,10 @@ def start_tournament_flow(reader, isThereRewards):
                                                             print("Conectate, tienes 10 minutos para completar el evento 12")
                                                             sleep(600)
                                                     return isStartRound
+                                                else:
+                                                    print("FT 3")
+                                            else:
+                                                print("FT 2")
                                         else:
                                             print(
                                                 "Error al terminar el round 3.")
@@ -705,6 +676,8 @@ def start_tournament_flow(reader, isThereRewards):
                                                 if main_are_there_errors():
                                                     print("Conectate, tienes 10 minutos para completar el evento 11")
                                                     sleep(600)
+                                    else:
+                                        print("FT 1")
                                 elif(isStartRound == "Error"):
                                     print("isStartRound 2")
                                     respActividadSospechosa = isActividadSospechosa()
@@ -716,6 +689,10 @@ def start_tournament_flow(reader, isThereRewards):
                                             print("Conectate, tienes 10 minutos para completar el evento 10")
                                             sleep(600)
                                     return isStartRound
+                                else:
+                                    print("isStartRound 2")
+                            else:
+                                print("Error reset_info_players 1")
                         else:
                             print("Error al terminar el round 2.")
                             respActividadSospechosa = isActividadSospechosa()
@@ -737,6 +714,10 @@ def start_tournament_flow(reader, isThereRewards):
                             print("Conectate, tienes 10 minutos para completar el evento 8")
                             sleep(600)
                     return isStartRound
+                else:
+                    print("Error isStartRound")
+            else:
+                print("Error reset_info_players 1")
         else:
             print("Error al terminar el round 1.")
     else:
@@ -759,6 +740,7 @@ ConfirmJoinTournament_imgs = {
 }
 
 def confirm_and_fight(reader, isThereRewards):
+    print("confirm_and_fight")
     reset_info_players()
     found = False
     count = 0

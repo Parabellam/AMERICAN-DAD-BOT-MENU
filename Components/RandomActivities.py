@@ -2,6 +2,7 @@ import pyautogui
 from time import sleep
 
 from Components.LoadImages import load_images_from_path
+from Components.GetHomeScreen import main_get_home
 
 HAPPINESS_PATH = "Images/Happiness"
 
@@ -17,4 +18,5 @@ def mainGetHappiness():
                 sleep(0.5)
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
+    main_get_home()
     return True

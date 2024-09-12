@@ -197,11 +197,11 @@ def handle_errors_and_validate():
     return False
 
 
-def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode):
+def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_event):
     global lastBattleFood, lBFoodPosition
     resp1=open_validate_join()
     if(resp1.get("state")=="True"):
-        while True:
+        while True and not stop_event.is_set():
             resp2 = open_event()
             validate = validate_open_event()
             if validate==True:
@@ -219,7 +219,7 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode):
             restart = 1
             battlesCount = 0
             repeat = True
-            while True:
+            while True and not stop_event.is_set():
                 battlesCount += 1
                 respActividadSospechosa = isActividadSospechosa()
                 if(respActividadSospechosa == True):
@@ -349,7 +349,9 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode):
                                         close_event_button()
                                     use_food_option()
                                     sleep(1.1)
+                                    print("participar_button 11")
                                     participar_button()
+                        print("Before isFightDone")
                         isFightDone = confirm_and_fight(resp1.get("reader"), isThereRewards)
                         repeat = True
                         if isFightDone == False or isFightDone == "Error":
@@ -376,14 +378,15 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode):
                             validate_open_event()
                         else:
                             if main_are_there_errors():
-                                    open_validate_join(True)
-                                    open_event()
-                                    validateEvent = validate_open_event()
-                                    if(validateEvent == "Event running"):
-                                        close_event_button()
-                                    use_food_option()
-                                    sleep(1.1)
-                                    participar_button()
+                                open_validate_join(True)
+                                open_event()
+                                validateEvent = validate_open_event()
+                                if(validateEvent == "Event running"):
+                                    close_event_button()
+                                use_food_option()
+                                sleep(1.1)
+                                print("participar_button 22")
+                                participar_button()
                 else:
                     print("No se ha encontrado el botón para ingresar al evento.")
                     respActividadSospechosa = isActividadSospechosa()
@@ -401,6 +404,7 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode):
                                 close_event_button()
                             use_food_option()
                             sleep(1.1)
+                            print("participar_button 33")
                             participar_button()
     else:
         respActividadSospechosa = isActividadSospechosa()
@@ -418,5 +422,6 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode):
                     close_event_button()
                 use_food_option()
                 sleep(1.1)
+                print("participar_button 44")
                 participar_button()
         return print("No se ha conseguido abrir el evento.")

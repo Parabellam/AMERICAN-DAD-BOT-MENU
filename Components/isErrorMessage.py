@@ -33,34 +33,38 @@ CONFIDENCE_LEVEL = 0.9
 def wait_app():
     count = 0
     failCount = 0
-    sleep(20)
+    sleep(60)
+    print("Haciendo wait_app")
     while count < 20 and failCount < 50:
         for _, image_path in wait_app_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL, region=open_app_imgs_region)
+            location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL)
             if location:
+                count = 0
                 failCount += 1
-                center_x, center_y = pyautogui.center(location)
-                pyautogui.click(center_x, center_y)
                 sleep(10)
                 if(failCount >= 50):
                     print("Error al cargar el juego nuevamente.")
                     close_app()
             else:
                 count += 1
+                sleep(0.3)
                 if(count >= 20):
+                    print("Haciendo main_get_home asdf")
                     sleep(7)
                     main_get_home()
                     return
+    print("Last return wait_app")
     return
 
 def open_app():
     count = 0
+    sleep(3)
     while count < 20:
         for _, image_path in open_app_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL, region=open_app_imgs_region)
             count += 1
             if location:
-                sleep(2)
+                sleep(3)
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
                 wait_app()
@@ -69,6 +73,7 @@ def open_app():
     return False
 
 def close_app():
+    print("Haciendo close_app")
     count = 0
     while count < 20:
         for _, image_path in BS_window_imgs.items():
@@ -102,47 +107,43 @@ def locate_and_click_2(image_path):
 
 def resolve_wifi_error():
     for image_path in wifi_error_button_imgs.values():
-        if locate_and_click(image_path):
+        if locate_and_click(image_path, resolve_wifi_error_region):
             print("resolve_wifi_error")
             sleep(60)
             main_get_home()
             return True
-    print("NO HAY resolve_wifi_error")
     return False
 
 def resolve_casa_vulnerable_error():
     for image_path in casa_vulnerable_imgs.values():
-        locate_and_click_2(image_path)
+        locate_and_click_2(image_path, resolve_casa_vulnerable_error_region)
     return False
 
 def resolve_atacando_casa_error():
     for image_path in atacando_casa_reload_button_imgs.values():
-        if locate_and_click(image_path):
+        if locate_and_click(image_path, resolve_atacando_casa_error_region):
             print("resolve_atacando_casa_error")
             sleep(60)
             main_get_home()
             return True
-    print("NO HAY resolve_atacando_casa_error")
     return False
 
 def resolve_another_sessions_error():
     for image_path in another_sessions_imgs.values():
-        if locate_and_click(image_path):
+        if locate_and_click(image_path, resolve_another_sessions_error_region):
             print("resolve_another_sessions_error")
             sleep(60)
             main_get_home()
             return True
-    print("NO HAY resolve_another_sessions_error")
     return False
 
 def resolve_afk_error():
     for image_path in afk_imgs.values():
-        if locate_and_click(image_path):
+        if locate_and_click(image_path, resolve_afk_error_region):
             print("resolve_afk_error")
             sleep(60)
             main_get_home()
             return True
-    print("NO HAY resolve_afk_error")
     return False
 
 error_images_functions = [
