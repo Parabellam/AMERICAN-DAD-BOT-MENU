@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 from time import sleep
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 pyautogui.FAILSAFE = False
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))

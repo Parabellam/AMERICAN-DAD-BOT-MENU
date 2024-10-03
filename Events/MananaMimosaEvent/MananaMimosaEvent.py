@@ -4,6 +4,7 @@ import sys
 from pathlib import Path
 from time import sleep
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 pyautogui.FAILSAFE = False
 import numpy as np
 import cv2
@@ -13,6 +14,7 @@ from Components._GlobalOpenValidateJoin import open_validate_join
 from Components.FindActividadSospechosa import isActividadSospechosa
 from Components.LoadImages import load_images_from_path
 from Components.ReloadGame import reload_game_another_session
+from Components.RestartGame import main_restart_game
 from ManageJSON.ManageJSONFile import get_value_from_json
 
 from Events.MananaMimosaEvent.ConfirmAndFight import confirm_and_fight
@@ -23,6 +25,7 @@ from Components.isThereFamiliaLandiaWar import main_is_there_familialandia_war
 from Components.MananaMimosa.ValidateOpenEvent import validate_open_event
 from Components.MananaMimosa.ValidateOpenEvent import open_event
 from Components.MananaMimosa.IsEventRunning import isEventRuning
+from TelegramLogs import custom_print
 
 from Components.isErrorMessage import main_are_there_errors
 
@@ -54,6 +57,7 @@ isOut_region = (835, 190, 236, 145)
 home_region = (34, 575, 194, 145)
 no_recursos_region = (232, 90, 846, 485)
 finish_event_region = (1037, 123, 252, 119)
+G_COUNT_ERROR = 0
 
 def preprocess_image(img):
     gray = cv2.cvtColor(np.array(img), cv2.COLOR_BGR2GRAY)
@@ -95,7 +99,7 @@ def participar_button():
                 pyautogui.click(center_x, center_y)
                 sleep(SHORT_SLEEP)
                 return True
-    print("No se logró encontrar participar_button")
+    custom_print("No se logró encontrar participar_button", send_to_telegram=False)
     return False
 
 
@@ -133,7 +137,7 @@ def validate_screen():
     if(isOutResp == True):
         pyautogui.click(909, 94)
     else:
-        print("NO hemos conseguido entrar al juego o ya estamos dentro del juego")
+        custom_print("NO hemos conseguido entrar al juego o ya estamos dentro del juego")
 
 
 def goHome():
@@ -190,6 +194,7 @@ def get_current_food(resp_reader):
 
 def handle_errors_and_validate():
     if main_are_there_errors():
+        custom_print("AA 77.", send_to_telegram=True)
         open_validate_join(True)
         open_event()
         validate_open_event()
@@ -197,8 +202,9 @@ def handle_errors_and_validate():
     return False
 
 
-def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_event):
-    global lastBattleFood, lBFoodPosition
+def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, checkFamilyWar, stop_event):
+    global lastBattleFood, lBFoodPosition, G_COUNT_ERROR
+    G_COUNT_ERROR = 0
     resp1=open_validate_join()
     if(resp1.get("state")=="True"):
         while True and not stop_event.is_set():
@@ -207,14 +213,14 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
             if validate==True:
                 break
     else:
-        return print(resp1)
+        return custom_print(resp1)
     if(resp2):
         resp3 = isEventRuning()
         if(resp3=="Running"):
-            print("Función de torneo en progreso no disponible.")
-            return print("Por favor espera a que termine el torneo y ejecuta de nuevo este evento.")
+            custom_print("Función de torneo en progreso no disponible.", send_to_telegram=False)
+            return custom_print("Por favor espera a que termine el torneo y ejecuta de nuevo este evento.", send_to_telegram=False)
         if(resp3==False):
-            return print("No hemos conseguido detectar el menú principal del evento ni el torneo en progreso, inicia de nuevo el proceso.")
+            return custom_print("No hemos conseguido detectar el menú principal del evento ni el torneo en progreso, inicia de nuevo el proceso.")
         else:
             restart = 1
             battlesCount = 0
@@ -223,24 +229,28 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                 battlesCount += 1
                 respActividadSospechosa = isActividadSospechosa()
                 if(respActividadSospechosa == True):
+                    custom_print("Esperando 160 segundos... 1")
                     sleep(160)
                     reload_game()
                     open_event()
                     validate_open_event()
                 if handle_errors_and_validate():
+                    custom_print("Err 1.")
                     continue
                 current_food = get_current_food(resp1.get("reader"))
                 lastBattleFood[lBFoodPosition] = current_food
                 if handle_errors_and_validate():
+                    custom_print("Err 2.")
                     continue
                 if all(x == lastBattleFood[0] for x in lastBattleFood):
-                    print("La comida no está aumentando, resolviendo incidencia.")
+                    custom_print("La comida no está aumentando, resolviendo incidencia.")
                     close_button()
                     sleep(SHORT_SLEEP)
                     pyautogui.press('esc')
                     sleep(SHORT_SLEEP)
                     close_button()
                     if handle_errors_and_validate():
+                        custom_print("Err 3.")
                         continue
                     barResp = check_roger_bar_position()
                     if barResp == False:
@@ -254,23 +264,29 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                     respCloseButton = close_button()
                     if respCloseButton == True:
                         sleep(SHORT_SLEEP)
-                    main_are_there_errors()
+                    respError = main_are_there_errors()
+                    if respError:
+                        custom_print("BB 11.", send_to_telegram=True)
                     open_validate_join()
                     open_event()
                     validate_open_event()
                 elif (battlesCount > 6 and isNightMode == False):
                     main_get_home()
-                    main_are_there_errors()
+                    respError = main_are_there_errors()
+                    if respError:
+                        custom_print("BB 22.", send_to_telegram=True)
                     reso = main_is_there_familialandia_war()
                     if(reso==True):
-                        print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
+                        custom_print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
                         sleep(2)
-                        print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
+                        custom_print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
                         sleep(2)
-                        print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
+                        custom_print("Guerra de Familialandia, Ingresa al juego. 2 Minutos.")
                         sleep(116)
                         reload_game()
-                    main_are_there_errors()
+                    respError = main_are_there_errors()
+                    if respError:
+                        custom_print("BB 33.", send_to_telegram=True)
                     open_validate_join(True)
                     open_event()
                     validate_open_event()
@@ -291,7 +307,8 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                 average = max_food * 0.5
                 respA = False
                 respB = False
-                if(isSaveMode and current_food < 60000):
+                if((isSaveMode and current_food < 30000 and not checkFamilyWar) or (isSaveMode and checkFamilyWar and current_food < 160000)):
+                    custom_print("Save mode, esperando 3600 sec...", send_to_telegram=False)
                     sleep(3600)
                     if main_are_there_errors():
                         open_validate_join(True)
@@ -304,6 +321,7 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                 else:
                     respB = use_tickets_option()
                 if handle_errors_and_validate():
+                    custom_print("Err 4.")
                     continue
                 if respA == True or respB == True:
                     isParticipantPressed = participar_button()
@@ -318,6 +336,7 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                             sleep(SHORT_SLEEP)
                             close_button()
                             if handle_errors_and_validate():
+                                custom_print("Err 5.")
                                 continue
                             barResp = check_roger_bar_position()
                             if barResp == False:
@@ -331,7 +350,9 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                             respCloseButton = close_button()
                             if respCloseButton == True:
                                 sleep(SHORT_SLEEP)
-                            main_are_there_errors()
+                            respError = main_are_there_errors()
+                            if respError:
+                                custom_print("BB 55.", send_to_telegram=True)
                             open_validate_join()
                             open_event()
                             validate_open_event()
@@ -342,6 +363,7 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                             if(respAreThereFood==False):
                                 sleep(1800)
                                 if main_are_there_errors():
+                                    custom_print("BB 66.", send_to_telegram=True)
                                     open_validate_join(True)
                                     open_event()
                                     validateEvent = validate_open_event()
@@ -349,13 +371,15 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                                         close_event_button()
                                     use_food_option()
                                     sleep(1.1)
-                                    print("participar_button 11")
+                                    custom_print("participar_button 11", send_to_telegram=False)
                                     participar_button()
-                        print("Before isFightDone")
-                        isFightDone = confirm_and_fight(resp1.get("reader"), isThereRewards)
+                        custom_print("Before isFightDone", send_to_telegram=False)
+                        isFightDone = confirm_and_fight(resp1.get("reader"), isThereRewards, checkFamilyWar)
                         repeat = True
                         if isFightDone == False or isFightDone == "Error":
-                            main_are_there_errors()
+                            respError = main_are_there_errors()
+                            if respError:
+                                custom_print("BB 77.", send_to_telegram=True)
                             sleep(10)
                             reload_game()
                             main_get_home()
@@ -369,7 +393,12 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                         else:
                             lBFoodPosition += 1
                     else:
-                        print("No hemos podido encontrar el botón de participar.")
+                        custom_print("No hemos podido encontrar el botón de participar.", send_to_telegram=False)
+                        G_COUNT_ERROR += 1
+                        if(G_COUNT_ERROR > 25):
+                            custom_print("Exceso de errores, manejando...")
+                            main_restart_game()
+                            G_COUNT_ERROR = 0
                         respActividadSospechosa = isActividadSospechosa()
                         if(respActividadSospechosa == True):
                             sleep(160)
@@ -378,6 +407,7 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                             validate_open_event()
                         else:
                             if main_are_there_errors():
+                                custom_print("BB 88.", send_to_telegram=True)
                                 open_validate_join(True)
                                 open_event()
                                 validateEvent = validate_open_event()
@@ -385,10 +415,10 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                                     close_event_button()
                                 use_food_option()
                                 sleep(1.1)
-                                print("participar_button 22")
+                                custom_print("participar_button 22", send_to_telegram=False)
                                 participar_button()
                 else:
-                    print("No se ha encontrado el botón para ingresar al evento.")
+                    custom_print("No se ha encontrado el botón para ingresar al evento.", send_to_telegram=False)
                     respActividadSospechosa = isActividadSospechosa()
                     if(respActividadSospechosa == True):
                         sleep(160)
@@ -397,6 +427,7 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                         validate_open_event()
                     else:
                         if main_are_there_errors():
+                            custom_print("BB 99.", send_to_telegram=True)
                             open_validate_join(True)
                             open_event()
                             validateEvent = validate_open_event()
@@ -404,7 +435,7 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                                 close_event_button()
                             use_food_option()
                             sleep(1.1)
-                            print("participar_button 33")
+                            custom_print("participar_button 33", send_to_telegram=False)
                             participar_button()
     else:
         respActividadSospechosa = isActividadSospechosa()
@@ -415,6 +446,7 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
             validate_open_event()
         else:
             if main_are_there_errors():
+                custom_print("BB 1010.", send_to_telegram=True)
                 open_validate_join(True)
                 open_event()
                 validateEvent = validate_open_event()
@@ -422,6 +454,6 @@ def function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, stop_eve
                     close_event_button()
                 use_food_option()
                 sleep(1.1)
-                print("participar_button 44")
+                custom_print("participar_button 44", send_to_telegram=False)
                 participar_button()
-        return print("No se ha conseguido abrir el evento.")
+        return custom_print("No se ha conseguido abrir el evento.", send_to_telegram=False)

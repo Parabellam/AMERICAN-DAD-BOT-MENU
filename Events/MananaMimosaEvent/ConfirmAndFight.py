@@ -4,6 +4,7 @@ import numpy as np
 from time import sleep
 import os
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 pyautogui.FAILSAFE = False
 from pathlib import Path
 import sys
@@ -30,6 +31,7 @@ ConfirmJoinTournament_region = (879, 592, 237, 110)
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components.OpenCloseChat import closeChat, thereAreMessages
 from Events.ChatRewards.getChatRewards import getButtons
+from TelegramLogs import custom_print
 
 from Components.LoadImages import load_images_from_path
 from Components.isErrorMessage import main_are_there_errors
@@ -37,8 +39,10 @@ from Components.FindActividadSospechosa import isActividadSospechosa
 from Components.GetHomeScreen import main_get_home
 from Components.RandomActivities import mainGetHappiness
 from Components._GlobalOpenValidateJoin import open_validate_join
+from Components.isThereFamiliaLandiaWar import main_is_there_familialandia_war
 from Components.MananaMimosa.ValidateOpenEvent import validate_open_event
 from Components.MananaMimosa.ValidateOpenEvent import open_event
+from Components.FamiliaLandiaFlow import main_familialandia_flow
 
 LoadingTournament_imgs = load_images_from_path(MANANAMIMOSAEVENT_PATH, "LoadingTournament_")
 isInfoPlayersOpen_imgs = load_images_from_path(MANANAMIMOSAEVENTFIGHT_PATH, "isInfoPlayersOpen_")
@@ -96,13 +100,13 @@ def wait_match():
             for _, image_path in EventRunning_imgs.items():
                 location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL_TWO)
                 if location:
-                    print("El torneo ha comenzado...")
+                    custom_print("El torneo ha comenzado...", send_to_telegram=False)
                     return True
                 else:
-                    print("El torneo ha comenzado pero no se encontró EventRunning_imgs")
+                    custom_print("El torneo ha comenzado pero no se encontró EventRunning_imgs", send_to_telegram=False)
                     return False
     if (failCount > 38):
-        print("El torneo no ha logrado comenzar con éxito.")
+        custom_print("El torneo no ha logrado comenzar con éxito.", send_to_telegram=False)
         return False
 
 
@@ -168,8 +172,10 @@ def find_state():
                 if location:
                     return "bot" if img_dict == PlayerUnderMe_imgs else "top" if img_dict == PlayerOverMe_imgs else "disableForAttack"
     
-    print("No se ha conseguido encontrar el estado")
-    if main_are_there_errors():
+    custom_print("No se ha conseguido encontrar el estado", send_to_telegram=False)
+    sleep(2)
+    if main_are_there_errors() or not validate_open_info_players():
+        custom_print("Retornando errror en find_state", send_to_telegram=True)
         return "Error"
     return "disableForAttack"
 
@@ -243,11 +249,11 @@ def start_round(isThereRewards):
                 else:
                     sleep(SHORT_SLEEP)
                     if (count > 200):
-                        print(f"No se ha encontrado el texto Seleccionar al siguiente oponente. Error count hasta 50: {errorCount}")
+                        custom_print(f"No se ha encontrado el texto Seleccionar al siguiente oponente. Error count hasta 50: {errorCount}")
                         sleep(10)
                         errorCount += 10
                         if(errorCount > 50):
-                            print("Tienes 1 minuto para entrar al juego.")
+                            custom_print("Tienes 1 minuto para entrar al juego.")
                             sleep(60)
                             if main_are_there_errors():
                                 return "Error"
@@ -278,9 +284,9 @@ def attack():
         if (isPressedLeaveFight):
             wait_next_round()
         else:
-            print("No se ha encontrado el botón de salir de pelea.")
+            custom_print("No se ha encontrado el botón de salir de pelea.", send_to_telegram=False)
     else:
-        print("La pelea no se ha logrado comenzar con éxito.")
+        custom_print("La pelea no se ha logrado comenzar con éxito.", send_to_telegram=False)
     return True
 
 
@@ -303,6 +309,7 @@ def round_1(reader):
             skip_player()
             count += 1
             if(count > 30):
+                custom_print("AA 11.", send_to_telegram=True)
                 if main_are_there_errors():
                     return "Error"
         else:
@@ -312,7 +319,7 @@ def round_1(reader):
     if isDone:
         return True
     else:
-        print("No se encontró el botón de ataque")
+        custom_print("No se encontró el botón de ataque", send_to_telegram=False)
 
 
 def round_2(reader):
@@ -356,6 +363,7 @@ def round_3(reader):
                 skip_player()
                 count += 1
                 if(count > 30):
+                    custom_print("AA 22.", send_to_telegram=True)
                     if main_are_there_errors():
                         return "Error"
             else:
@@ -369,6 +377,7 @@ def round_3(reader):
                 skip_player()
                 count += 1
                 if(count > 30):
+                    custom_print("AA 33.", send_to_telegram=True)
                     if main_are_there_errors():
                         return "Error"
             else:
@@ -378,7 +387,7 @@ def round_3(reader):
     if isDone:
         return True
     else:
-        print("No se encontró el botón de ataque")
+        custom_print("No se encontró el botón de ataque", send_to_telegram=False)
 
 
 def round_4(reader):
@@ -402,6 +411,7 @@ def leave_tournament():
         for _, image_path in FinishEvent_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL_TWO, region=FinishEvent_region)
             if main_are_there_errors():
+                custom_print("AA 44.", send_to_telegram=True)
                 return "Error"
             if location:
                 miss_click()
@@ -423,7 +433,8 @@ def mapeo(reader):
         if unmapped_count == 1:
             break
         
-        if(count > 13):
+        if(count > 14):
+            custom_print("AA 55.", send_to_telegram=False)
             if main_are_there_errors():
                 return "Error"
         sleep(0.8)
@@ -438,7 +449,7 @@ def mapeo(reader):
             continue
         skip_player()
     # Asigna valores cualquiera al item no mapeado (Mi pos)
-    # print(info_players)
+    # custom_print(info_players)
     for player in info_players:
         if not player["isMaped"]:
             player["power"] = 99999999
@@ -447,16 +458,14 @@ def mapeo(reader):
 
 
 def validate_open_info_players():
-    found = False
     count = 0
-    while not found and count < max_attempts:
+    while count < max_attempts:
         for _, image_path in isInfoPlayersOpen_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL_TWO, region=isInfoPlayersOpen_region)
             count += 1
-            found = True
             if location:
-                return found
-    return found
+                return True
+    return False
 
 def miss_click():
     pyautogui.click(165, 194)
@@ -478,13 +487,13 @@ def am_i_out():
     return found
 
 
-def start_tournament_flow(reader, isThereRewards):
-    print("start_tournament_flow")
+def start_tournament_flow(reader, isThereRewards, checkFamilyWar):
+    custom_print("start_tournament_flow", send_to_telegram=False)
     isStartRound = False
     while True:
         isOpen = open_info_players()
         if main_are_there_errors():
-            print("Conectate, tienes 10 minutos para completar el evento 1")
+            custom_print("Conectate, tienes 10 minutos para completar el evento 1")
             sleep(600)
             return "Error"
         validate = validate_open_info_players()
@@ -493,15 +502,15 @@ def start_tournament_flow(reader, isThereRewards):
     if isOpen == True and validate:
         mapResp = mapeo(reader)
         if(mapResp=="Error"):
-            print("Conectate, tienes 10 minutos para completar el evento 2")
+            custom_print("Conectate, tienes 10 minutos para completar el evento 2")
             sleep(600)
             return "Error"
         respR1 = round_1(reader)
         if main_are_there_errors():
-            print("Conectate, tienes 10 minutos para completar el evento 3")
+            custom_print("Conectate, tienes 10 minutos para completar el evento 3")
             sleep(600)
             return "Error"
-        if (respR1 == True or print("No hay respR1")):
+        if (respR1 == True or custom_print("No hay respR1", send_to_telegram=False)):
             isReset = reset_info_players()
             if (isReset == True):
                 isStartRound = start_round(isThereRewards)
@@ -510,17 +519,17 @@ def start_tournament_flow(reader, isThereRewards):
                     miss_click()
                     isOpen = open_info_players()
                     if main_are_there_errors():
-                        print("Conectate, tienes 10 minutos para completar el evento 4")
+                        custom_print("Conectate, tienes 10 minutos para completar el evento 4")
                         sleep(600)
                         return "Error"
                     if (isOpen == True):
                         mapResp = mapeo(reader)
                         if(mapResp=="Error"):
-                            print("Conectate, tienes 10 minutos para completar el evento 5")
+                            custom_print("Conectate, tienes 10 minutos para completar el evento 5")
                             sleep(600)
                             return "Error"
                         respR2 = round_2(reader)
-                        if (respR2 == True or print("No hay respR2")):
+                        if (respR2 == True or custom_print("No hay respR2", send_to_telegram=False)):
                             isReset = reset_info_players()
                             if (isReset == True):
                                 isStartRound = start_round(isThereRewards)
@@ -529,17 +538,17 @@ def start_tournament_flow(reader, isThereRewards):
                                     miss_click()
                                     isOpen = open_info_players()
                                     if main_are_there_errors():
-                                        print("Conectate, tienes 10 minutos para completar el evento 6")
+                                        custom_print("Conectate, tienes 10 minutos para completar el evento 6")
                                         sleep(600)
                                         return "Error"
                                     if (isOpen == True):
                                         mapResp = mapeo(reader)
                                         if(mapResp=="Error"):
-                                            print("Conectate, tienes 10 minutos para completar el evento 7")
+                                            custom_print("Conectate, tienes 10 minutos para completar el evento 7")
                                             sleep(600)
                                             return "Error"
                                         respR3 = round_3(reader)
-                                        if (respR3 == True or print("No hay respR3")):
+                                        if (respR3 == True or custom_print("No hay respR3", send_to_telegram=False)):
                                             isReset = reset_info_players()
                                             if (isReset == True):
                                                 isStartRound = start_round(isThereRewards)
@@ -548,18 +557,18 @@ def start_tournament_flow(reader, isThereRewards):
                                                     miss_click()
                                                     isOpen = open_info_players()
                                                     if main_are_there_errors():
-                                                        print("Conectate, tienes 7 minutos para completar el evento 8")
+                                                        custom_print("Conectate, tienes 7 minutos para completar el evento 8")
                                                         sleep(420)
                                                         return "Error"
                                                     if (isOpen == True):
                                                         mapResp = mapeo(reader)
                                                         if(mapResp=="Error"):
-                                                            print("Conectate, tienes 7 minutos para completar el evento 9")
+                                                            custom_print("Conectate, tienes 7 minutos para completar el evento 9")
                                                             sleep(420)
                                                             return "Error"
                                                         respR4 = round_4(
                                                             reader)
-                                                        if (respR4 == True or print("No hay respR4")):
+                                                        if (respR4 == True or custom_print("No hay respR4", send_to_telegram=False)):
                                                             isReset = reset_info_players()
                                                             if (isReset == True):
                                                                 isStartRound = start_round(False)
@@ -568,27 +577,33 @@ def start_tournament_flow(reader, isThereRewards):
                                                                     miss_click()
                                                                     isOpen = open_info_players()
                                                                     if main_are_there_errors():
-                                                                        print("Conectate, tienes 5 minutos para completar el evento 10")
+                                                                        custom_print("Conectate, tienes 5 minutos para completar el evento 10")
                                                                         sleep(300)
                                                                         return "Error"
                                                                     if (isOpen == True):
                                                                         mapResp = mapeo(reader)
                                                                         if(mapResp=="Error"):
-                                                                            print("Conectate, tienes 5 minutos para completar el evento 11")
+                                                                            custom_print("Conectate, tienes 5 minutos para completar el evento 11")
                                                                             sleep(300)
                                                                             return "Error"
                                                                         respR5 = round_5(
                                                                             reader)
-                                                                        if (respR5 == True or print("No hay respR5")):
+                                                                        if (respR5 == True or custom_print("No hay respR5", send_to_telegram=False)):
                                                                             isReset = reset_info_players()
                                                                             if (isReset == True):
                                                                                 if main_are_there_errors():
-                                                                                    print("Conectate, tienes 3 minutos para completar el evento 12")
+                                                                                    custom_print("Conectate, tienes 3 minutos para completar el evento 12")
                                                                                     sleep(180)
                                                                                     return "Error"
                                                                                 respHome = main_get_home()
                                                                                 if(respHome == True):
                                                                                     mainGetHappiness()
+                                                                                    if(checkFamilyWar == True):
+                                                                                        warResp = main_is_there_familialandia_war(True)
+                                                                                        if(warResp==True):
+                                                                                            print("Hay guerra, uniéndose...")
+                                                                                            main_familialandia_flow()
+                                                                                    main_get_home()
                                                                                     open_validate_join(True)
                                                                                     open_event()
                                                                                     validate_open_event()
@@ -599,138 +614,138 @@ def start_tournament_flow(reader, isThereRewards):
                                                                                 if (isLeaving == True and amIOut == True):
                                                                                     return True
                                                                                 else:
-                                                                                    print("No se logró validar el menu del evento")
-                                                                                    print(amIOut)
+                                                                                    custom_print("No se logró validar el menu del evento", send_to_telegram=False)
+                                                                                    custom_print(amIOut)
                                                                                     respActividadSospechosa = isActividadSospechosa()
                                                                                     if(respActividadSospechosa == True):
                                                                                         sleep(160)
-                                                                                        print("ACTIVIDAD SOSPECHOSAAAAAAAA 13")
+                                                                                        custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 13")
                                                                                     else:
                                                                                         if main_are_there_errors():
-                                                                                            print("Conectate, tienes 10 minutos para completar el evento 16")
+                                                                                            custom_print("Conectate, tienes 10 minutos para completar el evento 16")
                                                                                             sleep(600)
                                                                             else:
-                                                                                print("FT 7")
+                                                                                custom_print("FT 7", send_to_telegram=False)
                                                                         else:
-                                                                            print(
+                                                                            custom_print(
                                                                                 "Error al terminar el round 5.")
                                                                             respActividadSospechosa = isActividadSospechosa()
                                                                             if(respActividadSospechosa == True):
                                                                                 sleep(160)
-                                                                                print("ACTIVIDAD SOSPECHOSAAAAAAAA 12")
+                                                                                custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 12")
                                                                             else:
                                                                                 if main_are_there_errors():
-                                                                                    print("Conectate, tienes 10 minutos para completar el evento 15")
+                                                                                    custom_print("Conectate, tienes 10 minutos para completar el evento 15")
                                                                                     sleep(600)
                                                                 elif(isStartRound == "Error"):
-                                                                    print("isStartRound 4")
+                                                                    custom_print("isStartRound 4", send_to_telegram=False)
                                                                     respActividadSospechosa = isActividadSospechosa()
                                                                     if(respActividadSospechosa == True):
                                                                         sleep(160)
-                                                                        print("ACTIVIDAD SOSPECHOSAAAAAAAA 11")
+                                                                        custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 11")
                                                                     else:
                                                                         if main_are_there_errors():
-                                                                            print("Conectate, tienes 10 minutos para completar el evento 14")
+                                                                            custom_print("Conectate, tienes 10 minutos para completar el evento 14")
                                                                             sleep(600)
                                                                     return isStartRound
                                                                 else:
-                                                                    print("FT 6")
+                                                                    custom_print("FT 6", send_to_telegram=False)
                                                             else:
-                                                                print("FT 5")
+                                                                custom_print("FT 5", send_to_telegram=False)
                                                         else:
-                                                            print(
+                                                            custom_print(
                                                                 "Error al terminar el round 4.")
                                                             respActividadSospechosa = isActividadSospechosa()
                                                             if(respActividadSospechosa == True):
                                                                 sleep(160)
-                                                                print("ACTIVIDAD SOSPECHOSAAAAAAAA 10")
+                                                                custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 10")
                                                             else:
                                                                 if main_are_there_errors():
-                                                                    print("Conectate, tienes 10 minutos para completar el evento 13")
+                                                                    custom_print("Conectate, tienes 10 minutos para completar el evento 13")
                                                                     sleep(600)
                                                     else:
-                                                        print("FT 4")
+                                                        custom_print("FT 4", send_to_telegram=False)
                                                 elif(isStartRound == "Error"):
-                                                    print("isStartRound 3")
+                                                    custom_print("isStartRound 3", send_to_telegram=False)
                                                     respActividadSospechosa = isActividadSospechosa()
                                                     if(respActividadSospechosa == True):
                                                         sleep(160)
-                                                        print("ACTIVIDAD SOSPECHOSAAAAAAAA 9")
+                                                        custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 9")
                                                     else:
                                                         if main_are_there_errors():
-                                                            print("Conectate, tienes 10 minutos para completar el evento 12")
+                                                            custom_print("Conectate, tienes 10 minutos para completar el evento 12")
                                                             sleep(600)
                                                     return isStartRound
                                                 else:
-                                                    print("FT 3")
+                                                    custom_print("FT 3", send_to_telegram=False)
                                             else:
-                                                print("FT 2")
+                                                custom_print("FT 2", send_to_telegram=False)
                                         else:
-                                            print(
+                                            custom_print(
                                                 "Error al terminar el round 3.")
                                             respActividadSospechosa = isActividadSospechosa()
                                             if(respActividadSospechosa == True):
                                                 sleep(160)
-                                                print("ACTIVIDAD SOSPECHOSAAAAAAAA 8")
+                                                custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 8")
                                             else:
                                                 if main_are_there_errors():
-                                                    print("Conectate, tienes 10 minutos para completar el evento 11")
+                                                    custom_print("Conectate, tienes 10 minutos para completar el evento 11")
                                                     sleep(600)
                                     else:
-                                        print("FT 1")
+                                        custom_print("FT 1", send_to_telegram=False)
                                 elif(isStartRound == "Error"):
-                                    print("isStartRound 2")
+                                    custom_print("isStartRound 2", send_to_telegram=False)
                                     respActividadSospechosa = isActividadSospechosa()
                                     if(respActividadSospechosa == True):
                                         sleep(160)
-                                        print("ACTIVIDAD SOSPECHOSAAAAAAAA 7")
+                                        custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 7")
                                     else:
                                         if main_are_there_errors():
-                                            print("Conectate, tienes 10 minutos para completar el evento 10")
+                                            custom_print("Conectate, tienes 10 minutos para completar el evento 10")
                                             sleep(600)
                                     return isStartRound
                                 else:
-                                    print("isStartRound 2")
+                                    custom_print("isStartRound 2", send_to_telegram=False)
                             else:
-                                print("Error reset_info_players 1")
+                                custom_print("Error reset_info_players 1", send_to_telegram=False)
                         else:
-                            print("Error al terminar el round 2.")
+                            custom_print("Error al terminar el round 2.", send_to_telegram=False)
                             respActividadSospechosa = isActividadSospechosa()
                             if(respActividadSospechosa == True):
                                 sleep(160)
-                                print("ACTIVIDAD SOSPECHOSAAAAAAAA 6")
+                                custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 6")
                             else:
                                 if main_are_there_errors():
-                                    print("Conectate, tienes 10 minutos para completar el evento 9")
+                                    custom_print("Conectate, tienes 10 minutos para completar el evento 9")
                                     sleep(600)
                 elif(isStartRound == "Error"):
-                    print("isStartRound 1")
+                    custom_print("isStartRound 1", send_to_telegram=False)
                     respActividadSospechosa = isActividadSospechosa()
                     if(respActividadSospechosa == True):
                         sleep(160)
-                        print("ACTIVIDAD SOSPECHOSAAAAAAAA 5")
+                        custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 5")
                     else:
                         if main_are_there_errors():
-                            print("Conectate, tienes 10 minutos para completar el evento 8")
+                            custom_print("Conectate, tienes 10 minutos para completar el evento 8")
                             sleep(600)
                     return isStartRound
                 else:
-                    print("Error isStartRound")
+                    custom_print("Error isStartRound", send_to_telegram=False)
             else:
-                print("Error reset_info_players 1")
+                custom_print("Error reset_info_players 1", send_to_telegram=False)
         else:
-            print("Error al terminar el round 1.")
+            custom_print("Error al terminar el round 1.", send_to_telegram=False)
     else:
-        print("No se logró abrir el menú de información de jugador.")
+        custom_print("No se logró abrir el menú de información de jugador.", send_to_telegram=False)
         respActividadSospechosa = isActividadSospechosa()
         if(respActividadSospechosa == True):
             sleep(160)
-            print("ACTIVIDAD SOSPECHOSAAAAAAAA 4")
+            custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 4")
         else:
             if main_are_there_errors():
-                print("Conectate, tienes 10 minutos para completar el evento 7")
+                custom_print("Conectate, tienes 10 minutos para completar el evento 7")
                 sleep(600)
-    print("Error fatal")
+    custom_print("Error fatal", send_to_telegram=False)
     return False
 
 
@@ -739,8 +754,8 @@ ConfirmJoinTournament_imgs = {
         "img2": os.path.join(MANANAMIMOSAEVENT_PATH, "ConfirmJoinTournament_2.png"),
 }
 
-def confirm_and_fight(reader, isThereRewards):
-    print("confirm_and_fight")
+def confirm_and_fight(reader, isThereRewards, checkFamilyWar):
+    custom_print("confirm_and_fight", send_to_telegram=False)
     reset_info_players()
     found = False
     count = 0
@@ -757,44 +772,44 @@ def confirm_and_fight(reader, isThereRewards):
                 sleep(SHORT_SLEEP)
                 pyautogui.click(997, 647)
     if main_are_there_errors():
-        print("5")
+        custom_print("AA 66.", send_to_telegram=True)
         return False
     if (found == True):
         isStart = wait_match()
         if (isStart == True):
-            tournamentResp = start_tournament_flow(reader, isThereRewards)
+            tournamentResp = start_tournament_flow(reader, isThereRewards, checkFamilyWar)
             if (tournamentResp == True or tournamentResp == "Error"):
                 return tournamentResp
             else:
-                print("El torneo NO se ha completado correctamente.")
+                custom_print("El torneo NO se ha completado correctamente.", send_to_telegram=False)
                 respActividadSospechosa = isActividadSospechosa()
                 if(respActividadSospechosa == True):
                     sleep(160)
-                    print("ACTIVIDAD SOSPECHOSAAAAAAAA")
+                    custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA")
                 else:
                     if main_are_there_errors():
-                        print("Conectate, tienes 10 minutos para completar el evento 4")
+                        custom_print("Conectate, tienes 10 minutos para completar el evento 4")
                         sleep(600)
                 return False
         else:
-            print("No se encontro match")
+            custom_print("No se encontro match", send_to_telegram=False)
             respActividadSospechosa = isActividadSospechosa()
             if(respActividadSospechosa == True):
                 sleep(160)
-                print("ACTIVIDAD SOSPECHOSAAAAAAAA 2")
+                custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 2")
             else:
                 if main_are_there_errors():
-                    print("Conectate, tienes 10 minutos para completar el evento 5")
+                    custom_print("Conectate, tienes 10 minutos para completar el evento 5")
                     sleep(600)
             return False
     else:
-        print("No se encontró el botón para confirmar batalla")
+        custom_print("No se encontró el botón para confirmar batalla", send_to_telegram=False)
         respActividadSospechosa = isActividadSospechosa()
         if(respActividadSospechosa == True):
             sleep(160)
-            print("ACTIVIDAD SOSPECHOSAAAAAAAA 3")
+            custom_print("ACTIVIDAD SOSPECHOSAAAAAAAA 3")
         else:
             if main_are_there_errors():
-                print("Conectate, tienes 10 minutos para completar el evento 6")
+                custom_print("Conectate, tienes 10 minutos para completar el evento 6")
                 sleep(600)
         return False

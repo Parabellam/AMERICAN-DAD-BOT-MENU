@@ -1,5 +1,6 @@
 from time import sleep
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 pyautogui.FAILSAFE = False
 
 OPENCLOSECHAT_PATH = "Images/Chat"

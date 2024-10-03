@@ -1,8 +1,10 @@
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 import sys
 from pathlib import Path
 import concurrent.futures
 from time import sleep
+from time import time
 
 ERRORS_PATH = "Images/Errors"
 WINDOW_PATH = "Images/BlueStacks"
@@ -10,6 +12,10 @@ WINDOW_PATH = "Images/BlueStacks"
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components.LoadImages import load_images_from_path
 from Components.GetHomeScreen import main_get_home
+from Components.JoinMap import open_main_map
+from Components.MananaMimosa.ValidateOpenEvent import open_event
+from Components.MananaMimosa.ValidateOpenEvent import validate_open_event
+from TelegramLogs import custom_print
 
 wifi_error_imgs = load_images_from_path(ERRORS_PATH, "wifi_error_")
 wifi_error_button_imgs = load_images_from_path(ERRORS_PATH, "wifi_error_button_")
@@ -30,11 +36,18 @@ BS_window_imgs_region = (706, 38, 442, 197)
 open_app_imgs_region = (817, 176, 292, 173)
 CONFIDENCE_LEVEL = 0.9
 
+def open_event_flow():
+    open_main_map()
+    open_event()
+    validate_open_event()
+    custom_print("Se abrío todo correctamente")
+    return True
+
 def wait_app():
     count = 0
     failCount = 0
+    custom_print("Haciendo wait_app")
     sleep(60)
-    print("Haciendo wait_app")
     while count < 20 and failCount < 50:
         for _, image_path in wait_app_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL)
@@ -43,17 +56,17 @@ def wait_app():
                 failCount += 1
                 sleep(10)
                 if(failCount >= 50):
-                    print("Error al cargar el juego nuevamente.")
-                    close_app()
+                    custom_print("Error al cargar el juego nuevamente.")
+                    # close_app() esto puede generar bucle infinito
             else:
                 count += 1
                 sleep(0.3)
                 if(count >= 20):
-                    print("Haciendo main_get_home asdf")
+                    custom_print("Haciendo main_get_home asdf")
                     sleep(7)
                     main_get_home()
                     return
-    print("Last return wait_app")
+    custom_print("Last return wait_app")
     return
 
 def open_app():
@@ -61,7 +74,7 @@ def open_app():
     sleep(3)
     while count < 20:
         for _, image_path in open_app_imgs.items():
-            location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL, region=open_app_imgs_region)
+            location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL)
             count += 1
             if location:
                 sleep(3)
@@ -69,11 +82,11 @@ def open_app():
                 pyautogui.click(center_x, center_y)
                 wait_app()
                 return True
-    print("No se ha encontrado la app")
+    custom_print("No se ha encontrado la app")
     return False
 
 def close_app():
-    print("Haciendo close_app")
+    custom_print("Haciendo close_app")
     count = 0
     while count < 20:
         for _, image_path in BS_window_imgs.items():
@@ -84,32 +97,38 @@ def close_app():
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
                 open_app()
+                open_event_flow()
                 return True
-    print("No se ha encontrado cerrar ventana")
+    custom_print("No se ha encontrado cerrar ventana")
     return False
 
 def locate_and_click(image_path, region):
-    location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL, region=region)
-    if location:
-        print("Se ha localizado un error")
-        pyautogui.click(1346, 701)
-        close_app()
-        return True
+    try:
+        location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL, region=region)
+        if location:
+            custom_print("Se ha localizado un error")
+            pyautogui.click(1346, 701)
+            close_app()
+            return True
+    except Exception as e:
+        custom_print(f"Error al localizar la imagen: {str(e)}")
     return False
 
 def locate_and_click_2(image_path):
-    location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL)
-    if location:
-        center_x, center_y = pyautogui.center(location)
-        pyautogui.click(center_x, center_y)
-        return True
+    try:
+        location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL)
+        if location:
+            center_x, center_y = pyautogui.center(location)
+            pyautogui.click(center_x, center_y)
+            return True
+    except Exception as e:
+        custom_print(f"_2 Error al localizar la imagen: {str(e)}")
     return False
 
 def resolve_wifi_error():
     for image_path in wifi_error_button_imgs.values():
         if locate_and_click(image_path, resolve_wifi_error_region):
-            print("resolve_wifi_error")
-            sleep(60)
+            custom_print("resolve_wifi_error")
             main_get_home()
             return True
     return False
@@ -122,8 +141,7 @@ def resolve_casa_vulnerable_error():
 def resolve_atacando_casa_error():
     for image_path in atacando_casa_reload_button_imgs.values():
         if locate_and_click(image_path, resolve_atacando_casa_error_region):
-            print("resolve_atacando_casa_error")
-            sleep(60)
+            custom_print("resolve_atacando_casa_error")
             main_get_home()
             return True
     return False
@@ -131,8 +149,7 @@ def resolve_atacando_casa_error():
 def resolve_another_sessions_error():
     for image_path in another_sessions_imgs.values():
         if locate_and_click(image_path, resolve_another_sessions_error_region):
-            print("resolve_another_sessions_error")
-            sleep(60)
+            custom_print("resolve_another_sessions_error")
             main_get_home()
             return True
     return False
@@ -140,8 +157,7 @@ def resolve_another_sessions_error():
 def resolve_afk_error():
     for image_path in afk_imgs.values():
         if locate_and_click(image_path, resolve_afk_error_region):
-            print("resolve_afk_error")
-            sleep(60)
+            custom_print("resolve_afk_error")
             main_get_home()
             return True
     return False
@@ -155,17 +171,28 @@ error_images_functions = [
 ]
 
 def locate_and_resolve(images, resolve_function, region):
-    for _ in range(3):
+    try:
         for image_path in images.values():
+            custom_print("Before locate_and_click", send_to_telegram=False)
             if locate_and_click(image_path, region):
-                print("locate_and_resolve")
+                custom_print("After locate_and_click", send_to_telegram=False)
                 return resolve_function()
+            custom_print("After locate_and_resolve loop", send_to_telegram=False)
+    except Exception as e:
+        custom_print(f"Error en locate_and_resolve: {str(e)}")
     return False
 
 def main_are_there_errors():
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(locate_and_resolve, images, resolve_function, region) for images, resolve_function, region in error_images_functions]
         for future in concurrent.futures.as_completed(futures):
-            if future.result():
-                return True
+            try:
+                result = future.result()
+                if result:
+                    custom_print("TERMINA main_are_there_errors en True", send_to_telegram=False)
+                    return True
+            except Exception as e:
+                custom_print(f"Excepción en el hilo: {str(e)}")
+                # Manejo de la excepción si es necesario
+    custom_print("TERMINA main_are_there_errors en False", send_to_telegram=False)
     return False

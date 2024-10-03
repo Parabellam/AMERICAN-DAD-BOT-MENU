@@ -1,4 +1,5 @@
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 
 from Components.LoadImages import load_images_from_path
 

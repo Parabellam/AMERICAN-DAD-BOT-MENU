@@ -1,4 +1,5 @@
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 import pygame
 from time import sleep
 import sys
@@ -10,6 +11,7 @@ isActividadSospechosa_region = (230, 62, 886, 233)
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components.LoadImages import load_images_from_path
+from TelegramLogs import custom_print
 
 actividad_sospechosa_imgs = load_images_from_path(ACTIVIDAD_SOSPECHOSA_PATH, "actividad_sospechosa_")
 
@@ -28,13 +30,13 @@ def isActividadSospechosa():
             location = pyautogui.locateOnScreen(image_path, confidence=0.9, region=isActividadSospechosa_region)
             count += 1
             if location:
-                print("Se ha detectado una actividad sospechosa 1.")
+                custom_print("Se ha detectado una actividad sospechosa 1.")
                 for _ in range(3):
                     play_alert_sound()
                     sleep(1)
-                    print("Se ha detectado una actividad sospechosa 2.")
+                    custom_print("Se ha detectado una actividad sospechosa 2.")
                     sleep(9)
-                    print("Se ha detectado una actividad sospechosa 3.")
+                    custom_print("Se ha detectado una actividad sospechosa 3.")
                     sleep(1)
                 return True
     return False

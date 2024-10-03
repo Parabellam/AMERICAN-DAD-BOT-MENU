@@ -2,6 +2,7 @@
 from time import sleep
 from time import time
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 import os
 
 

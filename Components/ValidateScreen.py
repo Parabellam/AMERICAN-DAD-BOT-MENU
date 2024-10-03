@@ -1,5 +1,6 @@
 import os
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 pyautogui.FAILSAFE = False
 
 MAP_BUTTON_PATH = "Images/MapButton"

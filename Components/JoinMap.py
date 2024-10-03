@@ -1,4 +1,5 @@
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 pyautogui.FAILSAFE = False
 from time import sleep
 

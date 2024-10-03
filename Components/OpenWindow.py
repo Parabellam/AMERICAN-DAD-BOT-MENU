@@ -1,6 +1,7 @@
 import pygetwindow as gw
 from time import sleep
 
+from TelegramLogs import custom_print
 
 def open():
     try:
@@ -22,11 +23,11 @@ def open():
 
             return True
         else:
-            print("La ventana de BlueStacks no se encontró.")
+            custom_print("La ventana de BlueStacks no se encontró.")
             return False
 
     except gw.PyGetWindowException as e:
-        print(f"Error al intentar manipular la ventana de BlueStacks: {e}")
+        custom_print(f"Error al intentar manipular la ventana de BlueStacks: {e}")
         return False
 
 

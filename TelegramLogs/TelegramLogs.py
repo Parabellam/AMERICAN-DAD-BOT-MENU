@@ -27,13 +27,13 @@ def send_telegram_message(message):
             break
         except (ConnectionError, Timeout) as e:
             retries += 1
-            print(f"Error de conexión: {e}. Reintentando ({retries}/{MAX_RETRIES})...")
+            custom_print(f"Error de conexión: {e}. Reintentando ({retries}/{MAX_RETRIES})...", send_to_telegram = False)
             if retries < MAX_RETRIES:
                 sleep(RETRY_DELAY * retries)
             else:
-                print("No se pudo enviar el mensaje después de varios intentos.")
+                custom_print("No se pudo enviar el mensaje después de varios intentos.", send_to_telegram = False)
         except Exception as e:
-            print(f"Error inesperado: {e}")
+            custom_print(f"Error inesperado: {e}", send_to_telegram = False)
             break
 
 
@@ -53,6 +53,15 @@ def enqueue_telegram_message(message):
     log_queue.put(message)
 
 
+def custom_print(message, send_to_telegram=True):
+    # Imprime el mensaje en la consola estándar
+    sys.__stdout__.write(message + '\n')
+    
+    # Si send_to_telegram es True, encola el mensaje para enviar a Telegram
+    if send_to_telegram:
+        enqueue_telegram_message(message)
+
+# Modifica la clase TelegramConsoleRedirector
 class TelegramConsoleRedirector:
     def __init__(self, text_widget):
         self.text_widget = text_widget
@@ -64,12 +73,6 @@ class TelegramConsoleRedirector:
             if self.text_widget.winfo_exists():
                 self.text_widget.insert(tk.END, message)
                 self.text_widget.see(tk.END)
-                
-            # Encola el mensaje para enviar a Telegram
-            self.buffer += message
-            if '\n' in self.buffer:
-                enqueue_telegram_message(self.buffer.strip())
-                self.buffer = ""
             
             # También imprime en la consola estándar
             sys.__stdout__.write(message)
@@ -77,12 +80,7 @@ class TelegramConsoleRedirector:
             sys.__stdout__.write(f"Error al escribir en el widget de texto: {e}\n")
 
     def flush(self):
-        if self.buffer:
-            enqueue_telegram_message(self.buffer.strip())
-            self.buffer = ""
-            sys.__stdout__.flush()
-
-
+        pass
 
 def create_telegram_console(root):
     console_frame = tk.Frame(root, bg='black')

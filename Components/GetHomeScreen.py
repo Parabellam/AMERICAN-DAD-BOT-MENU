@@ -1,4 +1,5 @@
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 from time import sleep
 import sys
 from pathlib import Path
@@ -9,6 +10,7 @@ GLOBAL_PATH = "Images/Global"
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components.LoadImages import load_images_from_path
 from Components.FindActividadSospechosa import isActividadSospechosa
+from TelegramLogs import custom_print
 
 leave_home_msg_imgs = load_images_from_path(HOME_PATH, "leave_home_msg_")
 leave_home_msg_region = (368, 187, 598, 378)
@@ -45,7 +47,6 @@ def main_get_home():
         sleep(2)
         if validate_home(leave_home_msg_imgs, confidence=0.9):
             return True
-    print("Imagen no encontrada después de 30 intentos.")
     isActividadSospechosa()
     pyautogui.click(77, 49)
     pyautogui.press('esc')
@@ -59,5 +60,5 @@ def main_get_home():
         sleep(2)
         if validate_home(leave_home_msg_imgs, confidence=0.9):
             return True
-    print("Imagen no encontrada después de 10 intentos más.")
+    custom_print("Imagen no encontrada después de 10 intentos más.", send_to_telegram=False)
     return False

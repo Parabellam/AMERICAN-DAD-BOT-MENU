@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 from time import sleep
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 pyautogui.FAILSAFE = False
 
 ANOTHER_SESSION_BUTTON_PATH = "Images/Errors"
@@ -12,6 +13,7 @@ sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from Components.LoadImages import load_images_from_path
 from Components._GlobalOpenValidateJoin import open_validate_join
 from Components.FindActividadSospechosa import isActividadSospechosa
+from TelegramLogs import custom_print
 
 another_session_button_imgs = load_images_from_path(ANOTHER_SESSION_BUTTON_PATH, "another_session_button_")
 another_session_button_region = (544, 432, 240, 113)
@@ -20,7 +22,7 @@ leave_home_msg_imgs = load_images_from_path(HOME_PATH, "leave_home_msg_")
 leave_home_msg_region = (368, 187, 598, 378)
 
 def reload_game_another_session():
-    print("Haciendo reload_game_another_session")
+    custom_print("Haciendo reload_game_another_session", send_to_telegram=False)
     count = 0
     while count < 20:
         for _, image_path in another_session_button_imgs.items():
@@ -46,7 +48,7 @@ def reload_game_another_session():
                 count += 1
     respActividadSospechosa = isActividadSospechosa()
     if(respActividadSospechosa == True):
-        print("ACTIVIDAD SOSPECHOSA, ENTRAR AL JUEGO")
+        custom_print("ACTIVIDAD SOSPECHOSA, ENTRAR AL JUEGO")
         sleep(160)
     if count > 24:
         sleep(10)
@@ -68,10 +70,10 @@ def reload_game_another_session():
                 count = 1
                 sleep(1)
                 break
-        print("El juego logró cargar correctamente, validando pantalla.")
+        custom_print("El juego logró cargar correctamente, validando pantalla.", send_to_telegram=False)
         sleep(2)
     elif failCount > 199:
-        print("El juego NO logró cargar correctamente.")
+        custom_print("El juego NO logró cargar correctamente.", send_to_telegram=False)
         sleep(5)
         return False
     open_validate_join(True)

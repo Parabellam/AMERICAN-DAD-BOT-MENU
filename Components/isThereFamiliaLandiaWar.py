@@ -1,4 +1,5 @@
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 import sys
 from pathlib import Path
 
@@ -16,13 +17,16 @@ height = 717 - 590
 region = (left, top, width, height)
 
 
-def main_is_there_familialandia_war():
+def main_is_there_familialandia_war(click = False):
     count = 0
-    while count < 20:
+    while count < 5:
         for _, image_path in is_there_familialamdia_war_imgs.items():
             location = pyautogui.locateOnScreen(
                 image_path, region=region, confidence=0.95)
             count += 1
             if location:
+                if(click==True):
+                    center_x, center_y = pyautogui.center(location)
+                    pyautogui.click(center_x, center_y)
                 return True
     return False

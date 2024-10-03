@@ -1,6 +1,8 @@
 import pyautogui
+pyautogui.useImageNotFoundException(False)
 
 from Components.LoadImages import load_images_from_path
+from TelegramLogs import custom_print
 
 HOME_PATH = "Images/Home"
 
@@ -15,5 +17,5 @@ def check_roger_bar_position():
             count += 1
             if location:
                 return True
-    print("No se logró detectar la posición en el bar de Roger")
+    custom_print("No se logró detectar la posición en el bar de Roger", send_to_telegram=False)
     return False
