@@ -38,7 +38,7 @@ def open_validate_join(isReloadGame = False):
     else:
         resp = open_app()
         if resp:
-            custom_print("Se ha organizado un error 11.", send_to_telegram=False)
+            custom_print("Se ha organizado un error 11.", False)
             return {"state":"True", "reader":reader}
         custom_print("Por favor ubicar el juego:")
         return {"state":"Por favor ubicar el juego en las pantallas recomendadas por la aplicación."}

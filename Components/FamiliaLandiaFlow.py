@@ -110,8 +110,19 @@ def deploy_in_map_button():
                 return True
     return False
 
+def move_carroussel():
+    sleep(1)
+    pyautogui.mouseDown(850, 336)
+    sleep(0.7)
+    pyautogui.moveTo(297, 336, duration=2)
+    sleep(0.5)
+    pyautogui.mouseUp()
+    sleep(2)
+    return
+
 def add_roger():
     count = 0
+    move_carroussel()
     while count < max_count:
         for _, image_path in add_roger_imgs.items():
             location = pyautogui.locateOnScreen(
@@ -124,17 +135,14 @@ def add_roger():
                 pyautogui.moveTo(center_x, center_y, duration=2.5)
                 sleep(1)
                 pyautogui.mouseUp()
-                sleep(0.5)
-                resp = deploy_in_map_button()
-                if(resp==True):
-                    return True
-                else:
-                    print("Error add_roger")
-                    return False
+                sleep(1)
             elif count == 5:
                 resp = deploy_in_map_button()
                 if(resp==True):
                     return True
+    resp = deploy_in_map_button()
+    if(resp==True):
+        return True
     return False
 
 def main_familialandia_flow():

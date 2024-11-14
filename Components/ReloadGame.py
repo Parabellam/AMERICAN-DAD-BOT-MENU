@@ -22,7 +22,7 @@ leave_home_msg_imgs = load_images_from_path(HOME_PATH, "leave_home_msg_")
 leave_home_msg_region = (368, 187, 598, 378)
 
 def reload_game_another_session():
-    custom_print("Haciendo reload_game_another_session", send_to_telegram=False)
+    custom_print("Haciendo reload_game_another_session", False)
     count = 0
     while count < 20:
         for _, image_path in another_session_button_imgs.items():
@@ -70,10 +70,10 @@ def reload_game_another_session():
                 count = 1
                 sleep(1)
                 break
-        custom_print("El juego logró cargar correctamente, validando pantalla.", send_to_telegram=False)
+        custom_print("El juego logró cargar correctamente, validando pantalla.", False)
         sleep(2)
     elif failCount > 199:
-        custom_print("El juego NO logró cargar correctamente.", send_to_telegram=False)
+        custom_print("El juego NO logró cargar correctamente.", False)
         sleep(5)
         return False
     open_validate_join(True)

@@ -21,7 +21,7 @@ def wait_app():
     count = 0
     failCount = 0
     sleep(60)
-    custom_print("Haciendo wait_app 222", send_to_telegram=False)
+    custom_print("Haciendo wait_app 222", False)
     while count < 20 and failCount < 50:
         for _, image_path in wait_app_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL)
@@ -30,17 +30,17 @@ def wait_app():
                 failCount += 1
                 sleep(10)
                 if(failCount >= 50):
-                    custom_print("Error al cargar el juego nuevamente. 222", send_to_telegram=False)
+                    custom_print("Error al cargar el juego nuevamente. 222", False)
                     close_app()
             else:
                 count += 1
                 sleep(0.3)
                 if(count >= 20):
-                    custom_print("Haciendo main_get_home asdf 222", send_to_telegram=False)
+                    custom_print("Haciendo main_get_home asdf 222", False)
                     sleep(7)
                     main_get_home()
                     return
-    custom_print("Last return wait_app 222", send_to_telegram=False)
+    custom_print("Last return wait_app 222", False)
     return
 
 def open_app():
@@ -56,11 +56,11 @@ def open_app():
                 pyautogui.click(center_x, center_y)
                 wait_app()
                 return True
-    custom_print("No se ha encontrado la app 222", send_to_telegram=False)
+    custom_print("No se ha encontrado la app 222", False)
     return False
 
 def close_app():
-    custom_print("Haciendo close_app 222", send_to_telegram=False)
+    custom_print("Haciendo close_app 222", False)
     count = 0
     while count < 20:
         for _, image_path in BS_window_imgs.items():
@@ -72,7 +72,7 @@ def close_app():
                 pyautogui.click(center_x, center_y)
                 open_app()
                 return True
-    custom_print("No se ha encontrado cerrar ventana 222", send_to_telegram=False)
+    custom_print("No se ha encontrado cerrar ventana 222", False)
     return False
 
 def main_restart_game():

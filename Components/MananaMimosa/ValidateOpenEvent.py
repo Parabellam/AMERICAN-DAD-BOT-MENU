@@ -28,7 +28,7 @@ def miss_click():
 def is_finish_event():
     for _, image_path in FinishEvent_imgs.items():
         location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL_TWO, region=FinishEvent_region)
-        custom_print("is_finish_event", send_to_telegram=False)
+        custom_print("is_finish_event", False)
         # if main_are_there_errors():
         #         return "Error"
         if location:
@@ -45,15 +45,15 @@ def is_finish_event():
 def validate_open_event():
     found = False
     count = 0
-    sleep(2)
-    while not found and count < 10:
+    sleep(4)
+    while not found and count < 12:
         for _, image_path in EventNoRunning_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL_TWO)
             count += 1
             found = True
             if location:
                 return found
-    custom_print("Falló event no running e intentará buscar EventRunning", send_to_telegram=False)
+    custom_print("Falló event no running e intentará buscar EventRunning", False)
     found = False
     count = 0
     while not found and count < 10:
@@ -61,26 +61,39 @@ def validate_open_event():
             location2 = pyautogui.locateOnScreen(image_path2, confidence=CONFIDENCE_LEVEL_TWO)
             count += 1
             found = True
+            sleep(1)
             if location2:
                 resp = is_finish_event()
                 if(resp==False):
-                    custom_print("Esperando 30 1", send_to_telegram=False)
-                    sleep(30)
+                    custom_print("Esperando 8 1", False)
+                    sleep(8)
                     resp = is_finish_event()
                     if(resp==False):
-                        custom_print("Esperando 30 2", send_to_telegram=False)
-                        sleep(30)
+                        custom_print("Esperando 8 2", False)
+                        sleep(8)
                         resp = is_finish_event()
                         if(resp==False):
-                            custom_print("Esperando 30 3", send_to_telegram=False)
-                            sleep(30)
+                            custom_print("Esperando 8 3", False)
+                            sleep(8)
                             resp = is_finish_event()
                             if(resp==False):
-                                custom_print("Esperando 300 1", send_to_telegram=False)
-                                sleep(300)
+                                custom_print("Esperando 8 4", False)
+                                sleep(8)
                                 resp = is_finish_event()
+                                if(resp==False):
+                                    custom_print("Esperando 8 5", False)
+                                    sleep(8)
+                                    resp = is_finish_event()
+                                    if(resp==False):
+                                        custom_print("Esperando 30 3", False)
+                                        sleep(30)
+                                        resp = is_finish_event()
+                                        if(resp==False):
+                                            custom_print("Esperando 300 1", False)
+                                            sleep(300)
+                                            resp = is_finish_event()
                 return True
-    custom_print("Error fatal 2", send_to_telegram=False)
+    custom_print("Error fatal 2", False)
     return found
 
 

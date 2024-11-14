@@ -1,7 +1,7 @@
 import tkinter as tk
 import sys
 from pathlib import Path
-import threading
+# import threading
 
 sys.path.append(str(Path(__file__).resolve().parent.parent / 'Events' / 'MananaMimosaEvent'))
 sys.path.append(str(Path(__file__).resolve().parent.parent / 'ToolTip'))
@@ -15,7 +15,7 @@ from TelegramLogs import create_telegram_console
 from TelegramLogs import custom_print
 
 # Variable global para la señal de interrupción
-stop_event = threading.Event()
+# stop_event = threading.Event()
 
 def main_window():
     root = tk.Tk()
@@ -63,19 +63,19 @@ def add_family_war_checkbox(frame):
     return family_war_checkbox_var
 
 def action_buttons(frame, isThereRewards, isNightMode, isSaveMode, checkFamilyWar):
-    button1 = tk.Button(frame, text="Mañana Mimosa", command=lambda: threading.Thread(target=function_wrapper, args=(isThereRewards.get(), isNightMode.get(), isSaveMode.get(), checkFamilyWar.get())).start(), width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
+    button1 = tk.Button(frame, text="Mañana Mimosa", command=lambda: function_join_mananamimosa(isThereRewards.get(), isNightMode.get(), isSaveMode.get(), checkFamilyWar.get()), width=20, height=2, bg='lightgrey', fg='black', font=('Helvetica', 12, 'bold'), state='disabled')
     button1.grid(row=6, column=0, padx=10, pady=10)
     ToolTip(button1, "Para este evento se consumirá la comida si esta es mayor al 50% de tu capacidad. Por el contrario, usará los tickets hasta acabarlos y finalizará. Próximamente se podrá configurar este 50% mencionado.", width=300)
     
     return [button1]
 
-def function_wrapper(isThereRewards, isNightMode, isSaveMode, checkFamilyWar):
-    # Asegúrate de que function_join_mananamimosa revise stop_event periódicamente.
-    function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, checkFamilyWar, stop_event)
+# def function_wrapper(isThereRewards, isNightMode, isSaveMode, checkFamilyWar):
+#     # Asegúrate de que function_join_mananamimosa revise stop_event periódicamente.
+#     function_join_mananamimosa(isThereRewards, isNightMode, isSaveMode, checkFamilyWar, stop_event)
 
 def finish():
     custom_print("Cerrando")
-    stop_event.set()  # Envía la señal de detenerse a todos los hilos
+    # stop_event.set()  # Envía la señal de detenerse a todos los hilos
     root.destroy()
 
 def close_app_button(frame):

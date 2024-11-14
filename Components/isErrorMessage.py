@@ -4,7 +4,6 @@ import sys
 from pathlib import Path
 import concurrent.futures
 from time import sleep
-from time import time
 
 ERRORS_PATH = "Images/Errors"
 WINDOW_PATH = "Images/BlueStacks"
@@ -40,13 +39,13 @@ def open_event_flow():
     open_main_map()
     open_event()
     validate_open_event()
-    custom_print("Se abrío todo correctamente")
+    custom_print("Se abrío todo correctamente", False)
     return True
 
 def wait_app():
     count = 0
     failCount = 0
-    custom_print("Haciendo wait_app")
+    custom_print("Haciendo wait_app", False)
     sleep(60)
     while count < 20 and failCount < 50:
         for _, image_path in wait_app_imgs.items():
@@ -56,17 +55,17 @@ def wait_app():
                 failCount += 1
                 sleep(10)
                 if(failCount >= 50):
-                    custom_print("Error al cargar el juego nuevamente.")
+                    custom_print("Error al cargar el juego nuevamente.", False)
                     # close_app() esto puede generar bucle infinito
             else:
                 count += 1
                 sleep(0.3)
                 if(count >= 20):
-                    custom_print("Haciendo main_get_home asdf")
+                    custom_print("Haciendo main_get_home asdf", False)
                     sleep(7)
                     main_get_home()
                     return
-    custom_print("Last return wait_app")
+    custom_print("Last return wait_app", False)
     return
 
 def open_app():
@@ -77,41 +76,41 @@ def open_app():
             location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL)
             count += 1
             if location:
-                sleep(3)
+                sleep(4)
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
                 wait_app()
                 return True
-    custom_print("No se ha encontrado la app")
+    custom_print("No se ha encontrado la app", False)
     return False
 
 def close_app():
-    custom_print("Haciendo close_app")
+    custom_print("Haciendo close_app", False)
     count = 0
     while count < 20:
         for _, image_path in BS_window_imgs.items():
             location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL, region=BS_window_imgs_region)
             count += 1
             if location:
-                sleep(1)
+                sleep(3)
                 center_x, center_y = pyautogui.center(location)
                 pyautogui.click(center_x, center_y)
                 open_app()
                 open_event_flow()
                 return True
-    custom_print("No se ha encontrado cerrar ventana")
+    custom_print("No se ha encontrado cerrar ventana", False)
     return False
 
 def locate_and_click(image_path, region):
     try:
         location = pyautogui.locateOnScreen(image_path, confidence=CONFIDENCE_LEVEL, region=region)
         if location:
-            custom_print("Se ha localizado un error")
+            custom_print("Se ha localizado un error", False)
             pyautogui.click(1346, 701)
             close_app()
             return True
     except Exception as e:
-        custom_print(f"Error al localizar la imagen: {str(e)}")
+        custom_print(f"Error al localizar la imagen: {str(e)}", False)
     return False
 
 def locate_and_click_2(image_path):
@@ -122,13 +121,13 @@ def locate_and_click_2(image_path):
             pyautogui.click(center_x, center_y)
             return True
     except Exception as e:
-        custom_print(f"_2 Error al localizar la imagen: {str(e)}")
+        custom_print(f"_2 Error al localizar la imagen: {str(e)}", False)
     return False
 
 def resolve_wifi_error():
     for image_path in wifi_error_button_imgs.values():
         if locate_and_click(image_path, resolve_wifi_error_region):
-            custom_print("resolve_wifi_error")
+            custom_print("resolve_wifi_error", False)
             main_get_home()
             return True
     return False
@@ -141,7 +140,7 @@ def resolve_casa_vulnerable_error():
 def resolve_atacando_casa_error():
     for image_path in atacando_casa_reload_button_imgs.values():
         if locate_and_click(image_path, resolve_atacando_casa_error_region):
-            custom_print("resolve_atacando_casa_error")
+            custom_print("resolve_atacando_casa_error", False)
             main_get_home()
             return True
     return False
@@ -149,7 +148,7 @@ def resolve_atacando_casa_error():
 def resolve_another_sessions_error():
     for image_path in another_sessions_imgs.values():
         if locate_and_click(image_path, resolve_another_sessions_error_region):
-            custom_print("resolve_another_sessions_error")
+            custom_print("resolve_another_sessions_error", False)
             main_get_home()
             return True
     return False
@@ -157,7 +156,7 @@ def resolve_another_sessions_error():
 def resolve_afk_error():
     for image_path in afk_imgs.values():
         if locate_and_click(image_path, resolve_afk_error_region):
-            custom_print("resolve_afk_error")
+            custom_print("resolve_afk_error", False)
             main_get_home()
             return True
     return False
@@ -173,13 +172,13 @@ error_images_functions = [
 def locate_and_resolve(images, resolve_function, region):
     try:
         for image_path in images.values():
-            custom_print("Before locate_and_click", send_to_telegram=False)
+            custom_print("Before locate_and_click", False)
             if locate_and_click(image_path, region):
-                custom_print("After locate_and_click", send_to_telegram=False)
+                custom_print("After locate_and_click", False)
                 return resolve_function()
-            custom_print("After locate_and_resolve loop", send_to_telegram=False)
+            custom_print("After locate_and_resolve loop", False)
     except Exception as e:
-        custom_print(f"Error en locate_and_resolve: {str(e)}")
+        custom_print(f"Error en locate_and_resolve: {str(e)}", False)
     return False
 
 def main_are_there_errors():
@@ -189,10 +188,10 @@ def main_are_there_errors():
             try:
                 result = future.result()
                 if result:
-                    custom_print("TERMINA main_are_there_errors en True", send_to_telegram=False)
+                    custom_print("TERMINA main_are_there_errors en True", False)
                     return True
             except Exception as e:
-                custom_print(f"Excepción en el hilo: {str(e)}")
+                custom_print(f"Excepción en el hilo: {str(e)}", False)
                 # Manejo de la excepción si es necesario
-    custom_print("TERMINA main_are_there_errors en False", send_to_telegram=False)
+    custom_print("TERMINA main_are_there_errors en False", False)
     return False

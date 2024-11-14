@@ -60,5 +60,5 @@ def main_get_home():
         sleep(2)
         if validate_home(leave_home_msg_imgs, confidence=0.9):
             return True
-    custom_print("Imagen no encontrada después de 10 intentos más.", send_to_telegram=False)
+    custom_print("Imagen no encontrada después de 10 intentos más.", False)
     return False

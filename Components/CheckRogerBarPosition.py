@@ -17,5 +17,5 @@ def check_roger_bar_position():
             count += 1
             if location:
                 return True
-    custom_print("No se logró detectar la posición en el bar de Roger", send_to_telegram=False)
+    custom_print("No se logró detectar la posición en el bar de Roger", False)
     return False
